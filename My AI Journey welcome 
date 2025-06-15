@@ -1,0 +1,12 @@
+def welcome_user(user_name="User"):
+  """
+  Prints a personalized welcome message, Tron Legacy style.
+
+  Args:
+    user_name: The name of the user. Defaults to "User" if not provided.
+  """
+  print(f"Greetings, Programs! Welcome, {user_name}.")
+
+# Example usage:
+welcome_user("Flynn")
+welcome_user() # Uses the default "User"
