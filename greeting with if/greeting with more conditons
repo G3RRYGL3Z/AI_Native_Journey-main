@@ -4,7 +4,7 @@ def welcome_user():
   Includes an age restriction check.
   """
   # --- NEW LOGIC: Age Restriction ---
-  required_age = 16 # Define the minimum age (cycles) required for access
+  required_age = 21 # Define the minimum age (cycles) required for access
 
   # Ask the user for their age
   # input() always gets text, so we use int() to convert it into a whole number
