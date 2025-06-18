@@ -1,0 +1,35 @@
+def welcome_user():
+  """
+  Asks the user for their name and prints a personalized welcome message, Tron Legacy style.
+  Includes an age restriction check.
+  """
+  # --- NEW LOGIC: Age Restriction ---
+  required_age = 16 # Define the minimum age (cycles) required for access
+
+  # Ask the user for their age
+  # input() always gets text, so we use int() to convert it into a whole number
+  try: # We use try-except to handle cases where the user might not type a number
+      user_age = int(input("State your current cycle (age): "))
+  except ValueError:
+      print("Invalid input for cycle. Access Denied, Malformed Data.")
+      return # Stop the function if input isn't a number
+
+  # Check if the user meets the age requirement
+  if user_age < required_age:
+    print("Access Denied, Not Enough Cycles.")
+    return # Stop the function right here if they are too young
+  else:
+    print("Access Granted, Cycles Consumed.")
+    # --- END NEW LOGIC: Age Restriction ---
+
+  # --- Existing Logic: Ask for name (only runs if age is sufficient) ---
+  user_name = input("Identify yourself, Program: ") # Ask for the user's name
+
+  # Existing Logic: Check for special name
+  if user_name == "Gary": # Check if the name entered is exactly "Gary"
+    print(f"Greetings Creator! Welcome, {user_name}.")
+  else:
+    print(f"Greetings, Program! Welcome, {user_name}.")
+
+# Example usage:
+welcome_user() # This will now prompt the user for their age first
