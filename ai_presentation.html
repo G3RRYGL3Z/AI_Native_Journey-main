@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My AI Native Journey: Presentation Points</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+            background-color: #e9efff; /* Light blue background */
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .accordion-header {
+            background-color: #007bff; /* Blue header */
+            color: white;
+            padding: 18px 25px;
+            cursor: pointer;
+            border: none;
+            text-align: left;
+            width: 100%;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-header:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        .accordion-header:after {
+            content: '+'; /* Plus sign for closed state */
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        .accordion-header.active:after {
+            content: '-'; /* Minus sign for open state */
+            transform: rotate(0deg); /* No rotation needed for minus */
+        }
+        .accordion-content {
+            padding: 0 25px;
+            background-color: #f8faff; /* Lighter background for content */
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .accordion-content.show {
+            max-height: 200px; /* Adjust as needed for content length */
+            padding: 20px 25px;
+        }
+        .accordion-content p {
+            margin: 0;
+            padding-bottom: 10px; /* Space between content and next header */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My AI Native Journey: Key Presentation Insights</h1>
+
+        <div class="accordion">
+            <button class="accordion-header">
+                What I Directed AI to Build
+            </button>
+            <div class="accordion-content">
+                <p>My initial goal was simple: to create a 'Tron Legacy' style greeting program. But with the AI's help, I evolved it into a multi-layered access system that first **validates user eligibility based on 'cycles' (age)**, and then delivers a uniquely **personalized welcome**, even recognizing a special 'Creator' user!</p>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <button class="accordion-header">
+                One Cool AI Interaction
+            </button>
+            <div class="accordion-content">
+                <p>One of the coolest features we built with AI was the smart, multi-stage personalization. Beyond just a name, the AI helped me implement an age-gate, only proceeding with the greeting if the user met the 'cycle' requirements, and then adapting the greeting specifically for 'Gary' – making the AI feel much more aware and responsive!</p>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <button class="accordion-header">
+                One Challenge I Overcame with AI
+            </button>
+            <div class="accordion-content">
+                <p>A key challenge I tackled with the AI's guidance was understanding and fixing an **IndentationError**. In Python, even a single misplaced space can stop your code cold. The AI helped me understand this strict 'grammar rule' of Python, showing me how crucial precise spacing is for controlling the program's flow, turning a frustrating bug into a clear learning moment.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                // Toggle the 'active' class on the clicked header
+                header.classList.toggle('active');
+
+                // Select the content associated with this header
+                const content = header.nextElementSibling;
+
+                // Toggle the 'show' class on the content
+                if (content.classList.contains('show')) {
+                    content.classList.remove('show');
+                    content.style.maxHeight = null; // Reset max-height
+                } else {
+                    content.classList.add('show');
+                    // Set max-height to scrollHeight to allow smooth transition
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+
+                // Close other open accordions (optional, but good for single-open behavior)
+                document.querySelectorAll('.accordion-header').forEach(otherHeader => {
+                    if (otherHeader !== header && otherHeader.classList.contains('active')) {
+                        otherHeader.classList.remove('active');
+                        const otherContent = otherHeader.nextElementSibling;
+                        otherContent.classList.remove('show');
+                        otherContent.style.maxHeight = null;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
