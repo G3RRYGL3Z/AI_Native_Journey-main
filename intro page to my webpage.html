@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My AI Native Journey: The Grid</title>
+    <!-- Brython Core Library -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10.7/brython.min.js"></script>
+    <!-- Brython Standard Library (for features like sys.stdout redirection) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10.7/brython_stdlib.min.js"></script>
+
+    <style>
+        /* Tron Legacy Color Variables */
+        :root {
+            --tron-dark-bg: #03040A; /* Very dark blue/black */
+            --tron-blue-grid: #0F1225; /* Slightly lighter for grid/details */
+            --tron-neon-blue: #00FFFF; /* Bright cyan for accents */
+            --tron-neon-orange: #FF9000; /* Vibrant orange for highlights */
+            --tron-text-light: #E0FFFF; /* Light blueish-white for primary text */
+            --tron-text-dark: #80FFFF; /* Slightly muted blue for secondary text */
+            --tron-code-bg: #151A20; /* Darker background for code blocks */
+            --tron-border-glow: #0088FF; /* For active borders/glows */
+            --tron-success-output-bg: #004d40; /* Darker teal for success output */
+            --tron-success-output-border: #00c853; /* Green border for success */
+            --tron-success-output-text: #b9f6ca; /* Light green text */
+            --tron-error-output-bg: #420000; /* Darker red for error output */
+            --tron-error-output-border: #d50000; /* Red border for error */
+            --tron-error-output-text: #ffcdd2; /* Light red text */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0; /* Remove body padding here, handle in containers */
+            background-color: var(--tron-dark-bg);
+            color: var(--tron-text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-shadow: 0 0 5px var(--tron-neon-blue);
+            overflow-y: auto;
+        }
+
+        /* --- Intro Screen Styles --- */
+        #intro-screen {
+            position: fixed; /* Covers the entire viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--tron-dark-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Ensure it's on top */
+            opacity: 1;
+            transition: opacity 1s ease-out;
+            text-align: center;
+            padding: 20px; /* Add padding for smaller screens */
+            box-sizing: border-box;
+        }
+        #intro-screen.hidden {
+            opacity: 0;
+            pointer-events: none; /* Make it unclickable when hidden */
+        }
+        #intro-screen h1 {
+            color: var(--tron-neon-blue);
+            font-size: 3.5em;
+            text-shadow: 0 0 20px var(--tron-neon-blue);
+            margin-bottom: 40px;
+            animation: pulse-glow 2s infinite alternate; /* Subtle glow animation */
+        }
+        #intro-screen .input-group {
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 400px;
+        }
+        #intro-screen input[type="text"],
+        #intro-screen input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--tron-blue-grid);
+            border: 1px solid var(--tron-neon-blue);
+            border-radius: 8px;
+            color: var(--tron-text-light);
+            font-size: 1.1em;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            text-shadow: none;
+        }
+        #intro-screen input[type="text"]:focus,
+        #intro-screen input[type="number"]:focus {
+            border-color: var(--tron-neon-orange);
+            box-shadow: 0 0 15px rgba(255, 144, 0, 0.6);
+        }
+        #intro-screen button {
+            padding: 15px 40px;
+            background-color: var(--tron-neon-blue);
+            color: var(--tron-dark-bg);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 20px var(--tron-neon-blue);
+        }
+        #intro-screen button:hover {
+            background-color: #00E5E5;
+            box-shadow: 0 0 30px var(--tron-neon-blue);
+        }
+        #intro-screen .restriction-text {
+            color: var(--tron-text-dark);
+            font-size: 0.9em;
+            margin-top: 20px;
+            text-shadow: 0 0 5px rgba(128, 255, 255, 0.3);
+        }
+        #intro-feedback-message {
+            margin-top: 30px;
+            font-size: 1.1em;
+            color: var(--tron-neon-orange);
+            text-shadow: 0 0 10px var(--tron-neon-orange);
+            min-height: 1.5em; /* Reserve space */
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            from { text-shadow: 0 0 10px var(--tron-neon-blue); }
+            to { text-shadow: 0 0 30px var(--tron-neon-blue), 0 0 40px rgba(0,255,255,0.5); }
+        }
+
+        /* --- Main Content Area Styles --- */
+        #main-learning-hub {
+            padding: 20px; /* Add padding here to avoid clash with fixed intro */
+            display: none; /* Hidden by default */
+            width: 100%;
+            max-width: 1000px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+        #main-learning-hub.visible {
+            opacity: 1;
+            display: block; /* Show the main content */
+        }
+
+        .header-section {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header-section h1 {
+            color: var(--tron-neon-blue);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.8em;
+            font-weight: 700;
+            text-shadow: 0 0 15px var(--tron-neon-blue); /* Stronger glow for main title */
+        }
+        .header-section .explanation {
+            font-size: 1.2em;
+            color: var(--tron-neon-blue);
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+
+        .main-content-area {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping for side-by-side on larger screens */
+            gap: 20px; /* Space between the two main sections */
+            box-sizing: border-box;
+            margin-bottom: 20px; /* Space before the full-width section */
+        }
+
+        .section-container {
+            background-color: var(--tron-blue-grid);
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--tron-neon-blue), inset 0 0 10px var(--tron-neon-blue); /* Outer and inner glow */
+            padding: 30px;
+            box-sizing: border-box;
+            border: 1px solid var(--tron-neon-blue); /* Neon border */
+        }
+        
+        .section-container.left-panel {
+            flex: 2; /* Take more space for the learning tool */
+            min-width: 400px; /* Minimum width before wrapping */
+        }
+
+        .section-container.right-panel {
+            flex: 1; /* Take less space for the presentation points */
+            min-width: 300px; /* Minimum width before wrapping */
+        }
+
+        .section-container.full-width-panel {
+            width: 100%; /* Make this panel take full width */
+            margin-top: 20px; /* Space above this panel */
+        }
+
+        h2 {
+            color: var(--tron-neon-blue); /* Blue heading for concepts */
+            font-size: 1.6em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            padding: 15px 20px;
+            background-color: var(--tron-blue-grid);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            user-select: none; /* Prevent text selection on click */
+            border: 1px solid var(--tron-text-dark);
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3); /* Subtle glow */
+        }
+        h2:hover {
+            background-color: #0d1020; /* Slightly darker on hover */
+            box-shadow: 0 0 8px var(--tron-neon-blue);
+        }
+        h2.active {
+            background-color: var(--tron-neon-blue);
+            color: var(--tron-dark-bg); /* Dark text on neon blue */
+            box-shadow: 0 0 15px var(--tron-neon-blue); /* Strong active glow */
+            border-color: var(--tron-neon-blue);
+        }
+        h2 .arrow {
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+            color: var(--tron-neon-blue); /* Arrow color */
+        }
+        h2.active .arrow {
+            transform: rotate(90deg);
+            color: var(--tron-dark-bg); /* Arrow color when active */
+        }
+        .content {
+            padding: 0 25px; /* Start with no vertical padding */
+            background-color: var(--tron-blue-grid);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            border: 1px solid var(--tron-text-dark);
+            border-top: none;
+            box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.2);
+        }
+        .content.show {
+            max-height: 800px; /* Adjust as needed for content length */
+            padding: 20px 25px; /* Expand padding */
+        }
+        pre {
+            background-color: var(--tron-code-bg);
+            color: var(--tron-text-light);
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--tron-text-dark);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+        .explanation {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            color: var(--tron-text-light);
+        }
+        .try-it-out {
+            background-color: var(--tron-dark-bg);
+            border: 1px dashed var(--tron-neon-orange); /* Orange dashed border */
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 0 8px rgba(255, 144, 0, 0.4); /* Orange glow */
+        }
+        .try-it-out h3 {
+            color: var(--tron-neon-orange);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .try-it-out label {
+            color: var(--tron-text-dark);
+        }
+        .try-it-out input[type="text"],
+        .try-it-out input[type="number"] {
+            width: calc(50% - 20px);
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid var(--tron-text-dark);
+            border-radius: 5px;
+            background-color: var(--tron-blue-grid);
+            color: var(--tron-text-light);
+            box-sizing: border-box;
+            margin-bottom: 10px; /* Added for mobile responsiveness */
+        }
+        .try-it-out button {
+            padding: 10px 20px;
+            background-color: var(--tron-neon-blue); /* Neon blue button */
+            color: var(--tron-dark-bg); /* Dark text on button */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            font-weight: 600;
+            text-shadow: none; /* No text shadow on button */
+            box-shadow: 0 0 10px var(--tron-neon-blue);
+        }
+        .try-it-out button:hover {
+            background-color: #00E5E5;
+            box-shadow: 0 0 15px var(--tron-neon-blue);
+        }
+        .output-box {
+            margin-top: 15px;
+            padding: 0; /* Start with no padding for smooth transition */
+            border-radius: 5px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            opacity: 0; /* Hidden initially */
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.3s ease-out, max-height 0.3s ease-out, padding 0.3s ease-out;
+            box-sizing: border-box;
+        }
+        .output-box.show {
+            opacity: 1;
+            max-height: 150px; /* Adjust as needed */
+            padding: 10px;
+        }
+        #function-output, #variable-output, #io-output, #convert-output, #decision-output, #fstring-output {
+            background-color: var(--tron-success-output-bg);
+            border: 1px solid var(--tron-success-output-border);
+            color: var(--tron-success-output-text);
+            box-shadow: 0 0 8px rgba(0, 200, 83, 0.4);
+        }
+        #error-handling-output {
+            background-color: var(--tron-error-output-bg);
+            border: 1px solid var(--tron-error-output-border);
+            color: var(--tron-error-output-text);
+            box-shadow: 0 0 8px rgba(213, 0, 0, 0.4);
+        }
+
+        /* Presentation Points Specific Styles */
+        .presentation-points h2 {
+            font-size: 1.4em;
+            color: var(--tron-neon-orange); /* Orange for presentation headers */
+            text-shadow: 0 0 5px var(--tron-neon-orange);
+            border: 1px solid var(--tron-neon-orange);
+            background-color: var(--tron-dark-bg);
+            margin-bottom: 15px;
+        }
+        .presentation-points h2:hover {
+            background-color: #080D17;
+            box-shadow: 0 0 10px var(--tron-neon-orange);
+        }
+        .presentation-points h2.active {
+            background-color: var(--tron-neon-orange);
+            color: var(--tron-dark-bg);
+            box-shadow: 0 0 15px var(--tron-neon-orange);
+            border-color: var(--tron-neon-orange);
+        }
+        h2.active .arrow {
+            color: var(--tron-dark-bg);
+        }
+
+        .presentation-points .accordion-content {
+            background-color: var(--tron-dark-bg);
+            color: var(--tron-text-light);
+            border: 1px solid var(--tron-text-dark);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+        }
+        .presentation-points .accordion-content p {
+            font-size: 1em;
+            color: var(--tron-text-light);
+            text-shadow: none;
+        }
+        .presentation-points .accordion-content strong {
+            color: var(--tron-neon-blue); /* Highlighted words in content */
+        }
+
+        /* Lesson Plan Specific Styles */
+        .lesson-plan h2 {
+            color: var(--tron-neon-blue); /* Consistent blue for lesson plan headers */
+            text-shadow: 0 0 5px var(--tron-neon-blue);
+            border: 1px solid var(--tron-neon-blue);
+            background-color: var(--tron-dark-bg);
+        }
+        .lesson-plan h2:hover {
+            background-color: #080D17;
+            box-shadow: 0 0 10px var(--tron-neon-blue);
+        }
+        .lesson-plan h2.active {
+            background-color: var(--tron-neon-blue);
+            color: var(--tron-dark-bg);
+            box-shadow: 0 0 15px var(--tron-neon-blue);
+            border-color: var(--tron-neon-blue);
+        }
+        .lesson-plan .accordion-content {
+            background-color: var(--tron-blue-grid);
+            border: 1px solid var(--tron-text-dark);
+            box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.2);
+        }
+        .lesson-plan .accordion-content h3 {
+            color: var(--tron-neon-orange); /* Orange for sub-headings */
+            font-size: 1.2em;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 3px rgba(255, 144, 0, 0.5);
+        }
+        .lesson-plan .accordion-content ul {
+            list-style-type: none; /* Remove default bullets */
+            padding-left: 0;
+        }
+        .lesson-plan .accordion-content li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 5px;
+            color: var(--tron-text-light);
+        }
+        .lesson-plan .accordion-content li::before {
+            content: '•'; /* Custom bullet point */
+            color: var(--tron-neon-blue);
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        /* Quiz Specific Styles */
+        .quiz-section {
+            background-color: var(--tron-dark-bg);
+            border: 1px solid var(--tron-neon-orange);
+            box-shadow: 0 0 15px var(--tron-neon-orange), inset 0 0 10px var(--tron-neon-orange);
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 12px;
+            color: var(--tron-text-light);
+        }
+        .quiz-section h2 {
+            color: var(--tron-neon-orange);
+            text-shadow: 0 0 10px var(--tron-neon-orange);
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+        .quiz-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--tron-blue-grid);
+            border-radius: 8px;
+            border: 1px solid var(--tron-text-dark);
+            box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.2);
+        }
+        .quiz-question p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: var(--tron-text-light);
+            text-shadow: none;
+        }
+        .quiz-options label {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+            color: var(--tron-text-light);
+            transition: color 0.2s ease;
+            text-shadow: none;
+        }
+        .quiz-options label:hover {
+            color: var(--tron-neon-blue);
+        }
+        .quiz-options input[type="radio"] {
+            margin-right: 10px;
+            accent-color: var(--tron-neon-blue); /* Modern way to style radio buttons */
+        }
+        .quiz-submit-button {
+            padding: 12px 25px;
+            background-color: var(--tron-neon-blue);
+            color: var(--tron-dark-bg);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 0 10px var(--tron-neon-blue);
+            display: block;
+            margin: 30px auto 0;
+        }
+        .quiz-submit-button:hover {
+            background-color: #00E5E5;
+            box-shadow: 0 0 20px var(--tron-neon-blue);
+        }
+        .quiz-feedback {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.4s ease-out, max-height 0.4s ease-out, padding 0.4s ease-out;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .quiz-feedback.show {
+            opacity: 1;
+            max-height: 200px; /* Ample height for feedback */
+            padding: 15px;
+        }
+        .quiz-feedback.correct {
+            background-color: var(--tron-success-output-bg);
+            border: 1px solid var(--tron-success-output-border);
+            color: var(--tron-success-output-text);
+            box-shadow: 0 0 12px var(--tron-success-output-border);
+        }
+        .quiz-feedback.incorrect {
+            background-color: var(--tron-error-output-bg);
+            border: 1px solid var(--tron-error-output-border);
+            color: var(--tron-error-output-text);
+            box-shadow: 0 0 12px var(--tron-error-output-border);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .main-content-area {
+                flex-direction: column; /* Stack sections vertically on medium screens */
+            }
+            .section-container.left-panel,
+            .section-container.right-panel {
+                flex: none; /* Reset flex-grow/shrink */
+                width: 100%; /* Take full width */
+                max-width: unset; /* Remove max-width constraint */
+            }
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container, .section-container, .quiz-section {
+                padding: 15px;
+                border-radius: 8px;
+            }
+            .header-section h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.2em;
+                padding: 12px 15px;
+            }
+            .content.show {
+                padding: 15px;
+            }
+            .try-it-out input,
+            .try-it-out button {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            .try-it-out input {
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body onload="brython(1)">
+    <!-- Intro Screen (Initially Visible) -->
+    <div id="intro-screen">
+        <h1>Welcome, Program!</h1>
+        <div class="input-group">
+            <input type="text" id="intro-name-input" placeholder="Enter your name" aria-label="Enter your name">
+        </div>
+        <div class="input-group">
+            <input type="number" id="intro-age-input" placeholder="Enter your age (cycle)" aria-label="Enter your age (cycle)">
+        </div>
+        <button id="enter-grid-button">Enter the Grid</button>
+        <p id="intro-feedback-message"></p>
+        <p class="restriction-text">Age restriction: 21 cycles and above</p>
+    </div>
+
+    <!-- Main Learning Hub (Initially Hidden) -->
+    <div id="main-learning-hub">
+        <div class="header-section">
+            <h1 id="main-welcome-title">My AI Native Journey: The Grid Awaits!</h1>
+            <p class="explanation">
+                Greetings, User. Kevin Flynn here. Welcome to the digital frontier! Explore the core concepts of your Python script and revisit your presentation insights. When you're ready, test your knowledge with the recognition protocol below.
+            </p>
+        </div>
+
+        <div class="main-content-area">
+            <!-- Left Panel: Python Concepts Tool -->
+            <div class="section-container left-panel">
+                <h2>Python Concepts Explorer</h2>
+                <p class="explanation">
+                    Click on each concept to dive into its explanation and interactive examples, based on your "Tron Legacy" greeting script.
+                </p>
+
+                <!-- Concept 1: Functions -->
+                <h2 class="accordion-header" data-target="concept1">
+                    1. Functions: Organized Actions <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="concept1">
+                    <p class="explanation">
+                        Think of a function as a mini-program or a recipe for a specific task. You give it a name (like `welcome_user`), and put all the related instructions inside it. Once defined, you can call or "run" that function whenever you need it, avoiding repeating code!
+                    </p>
+                    <h3>From Your Script:</h3>
+                    <pre><code>def welcome_user():
+    # ... (code inside the function) ...
+
+# Example usage:
+welcome_user() # This line 'calls' the function to make it run!
+</code></pre>
+                    <div class="try-it-out">
+                        <h3>Try It Out! (Simulated Function Call)</h3>
+                        <p>Imagine this button is the <code>welcome_user()</code> line. Clicking it starts the function's process:</p>
+                        <button onclick="simulateFunctionCall()">Simulate Running welcome_user()</button>
+                        <div id="function-output" class="output-box"></div>
+                    </div>
+                </div>
+
+                <!-- Concept 2: Variables -->
+                <h2 class="accordion-header" data-target="concept2">
+                    2. Variables: Labeled Containers <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="concept2">
+                    <p class="explanation">
+                        A variable is like a labeled container or box where you store pieces of information. You give the box a name (the variable name), put a value inside it, and then you can use that name to get or change the value later in your script.
+                    </p>
+                    <h3>From Your Script:</h3>
+                    <pre><code>required_age = 21
+user_name = input("Identify yourself, Program: ")
+</code></pre>
+                    <div class="try-it-out">
+                        <h3>Try It Out! (Simulate Variable Storage)</h3>
+                        <p>Click the button to see what value is stored in <code>required_age</code>:</p>
+                        <button onclick="showVariableValue()">Show 'required_age' Value</button>
+                        <div id="variable-output" class="output-box"></div>
+                    </div>
+                </div>
+
+                <!-- Concept 3: Input & Output -->
+                <h2 class="accordion-header" data-target="concept3">
+                    3. Input & Output: Talking to Your Program <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="concept3">
+                    <p class="explanation">
+                        Programs aren't much fun if they can't talk to us! <code>input()</code> allows your program to ask the user for information (input), and <code>print()</code> allows your program to display messages or results back to the user (output).
+                    </p>
+                    <h3>From Your Script:</h3>
+                    <pre><code>user_name = input("Identify yourself, Program: ")
+print(f"Greetings, Program! Welcome, {user_name}.")
+</code></pre>
+                    <div class="try-it-out">
+                        <h3>Try It Out! (Simulate Input/Output)</h3>
+                        <label for="io-input">Type something:</label>
+                        <input type="text" id="io-input" placeholder="Your message here">
+                        <button onclick="simulateIO()">See what it prints</button>
+                        <div id="io-output" class="output-box"></div>
+                    </div>
+                </div>
+
+                <!-- Concept 4: Data Types & Conversion -->
+                <h2 class="accordion-header" data-target="concept4">
+                    4. Data Types & Conversion: Different Kinds of Info <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="concept4">
+                    <p class="explanation">
+                        Python handles different "types" of information differently, like whole numbers (`int`), text (`str`), or True/False (`bool`). When you get input from a user, it's *always* text. You often need to `convert` it (e.g., using `int()`) if you want to do math with it!
+                    </p>
+                    <h3>From Your Script:</h3>
+                    <pre><code>user_age = int(input("State your current cycle (age): "))
+</code></pre>
+                    <div class="try-it-out">
+                        <h3>Try It Out! (Simulate Conversion)</h3>
+                        <label for="convert-input">Enter a number or flexibly-shaped text:</label>
+                        <input type="text" id="convert-input" placeholder="e.g., 25 or 'hello'">
+                        <button onclick="simulateConversion()">Convert to Number</button>
+                        <div id="convert-output" class="output-box"></div>
+                    </div>
+                </div>
+
+                <!-- Concept 5: Control Flow (if/else) -->
+                <h2 class="accordion-header" data-target="concept5">
+                    5. Control Flow (if/else): Making Decisions <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="concept5">
+                    <p class="explanation">
+                        This is how your program makes choices! An <code>if/else</code> statement checks a condition. If the condition is `True`, it runs one block of code. If it's `False`, it runs a different block. This controls the "flow" of your script!
+                    </p>
+                    <h3>From Your Script:</h3>
+                    <pre><code>if user_age < required_age:
+    print("Access Denied, Not Enough Cycles.")
+else:
+    print("Access Granted, Cycles Consumed.")
+
+# ... later ...
+if user_name == "Gary":
+    print(f"Greetings Creator! Welcome, {user_name}.")
+else:
+    print(f"Greetings, Program! Welcome, {user_name}.")
+</code></pre>
+                    <div class="try-it-out">
+                        <h3>Try It Out! (Simulate Decision Making)</h3>
+                        <label for="age-input">Your Cycle (Age):</label>
+                        <input type="number" id="age-input" value="25">
+                        <label for="name-input">Your Name:</label>
+                        <input type="text" id="name-input" value="Gary">
+                        <button onclick="simulateDecision()">Get Greeting!</button>
+                        <div id="decision-output" class="output-box"></div>
+                    </div>
+                </div>
+
+                <!-- Concept 6: Error Handling (try/except/return) -->
+                <h2 class="accordion-header" data-target="concept6">
+                    6. Error Handling: Handling Unexpected Problems <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="concept6">
+                    <p class="explanation">
+                        Even the best programs can run into unexpected problems (like a user typing text when a number is expected). <code>try/except</code> blocks help your program deal with these "errors" gracefully instead of crashing. <code>return</code> is used to stop a function early.
+                    </p>
+                    <h3>From Your Script:</h3>
+                    <pre><code>try:
+    user_age = int(input("State your current cycle (age): "))
+except ValueError:
+    print("Invalid input for cycle. Access Denied, Malformed Data.")
+    return # Stops the function if there's a ValueError
+</code></pre>
+                    <div class="try-it-out">
+                        <h3>Try It Out! (Simulate Error Handling)</h3>
+                        <label for="error-input">Enter age (try text!):</label>
+                        <input type="text" id="error-input" placeholder="e.g., 'abc' or 25">
+                        <button onclick="simulateErrorHandling()">Test Input</button>
+                        <div id="error-handling-output" class="output-box"></div>
+                    </div>
+                </div>
+
+                <!-- Concept 7: Comments -->
+                <h2 class="accordion-header" data-target="concept7">
+                    7. Comments: Notes for Humans <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="concept7">
+                    <p class="explanation">
+                        Lines starting with <code>#</code> (or text inside <code>"""</code> triple quotes, like your function's description) are called comments. Python completely ignores them when running the code. They are notes for programmers to explain what the code does or why certain decisions were made!
+                    </p>
+                    <h3>From Your Script:</h3>
+                    <pre><code># Ask for the user's name
+# This variable is intended to be used later
+"""
+Asks the user for their name and prints a personalized welcome message, Tron Legacy style.
+Includes an age restriction check.
+"""
+</code></pre>
+                    <div class="try-it-out">
+                        <h3>Why are comments important?</h3>
+                        <p>They make your code easier for *you* to understand later, and incredibly helpful for *others* who read your code!</p>
+                    </div>
+                </div>
+
+                <!-- Concept 8: F-Strings -->
+                <h2 class="accordion-header" data-target="concept8">
+                    8. F-Strings: Easy Text Customization <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="concept8">
+                    <p class="explanation">
+                        F-strings (formatted string literals) are a super convenient way to embed variables directly into your text. You start the string with an <code>f</code>, and then put your variable names inside curly braces <code>{}</code> within the string. Python replaces the `{}` with the variable's actual value!
+                    </p>
+                    <h3>From Your Script:</h3>
+                    <pre><code>print(f"Greetings Creator! Welcome, {user_name}.")
+</code></pre>
+                    <div class="try-it-out">
+                        <h3>Try It Out! (Simulate F-String)</h3>
+                        <label for="fstring-name">Enter a name:</label>
+                        <input type="text" id="fstring-name" value="Tester">
+                        <button onclick="simulateFString()">Generate F-String</button>
+                        <div id="fstring-output" class="output-box"></div>
+                    </div>
+                </div>
+                
+                <!-- Live Python Code Editor -->
+                <h2 class="accordion-header" data-target="live-code-editor">
+                    9. Live Code Editor: Run Your Python! <span class="arrow">&gt;</span>
+                </h2>
+                <div class="content" id="live-code-editor">
+                    <p class="explanation">
+                        Ready to execute a program on the Grid? This editor allows you to type or paste Python code and run it directly in the browser! Note: For <code>input()</code>, a browser prompt will appear.
+                    </p>
+                    <h3>Your Script (Ready to Run):</h3>
+                    <textarea id="python-code-input" rows="15" cols="80" style="width: 100%; background-color: var(--tron-code-bg); color: var(--tron-text-light); border: 1px solid var(--tron-text-dark); border-radius: 6px; padding: 10px; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);">
+def welcome_user():
+  """
+  Asks the user for their name and prints a personalized welcome message, Tron Legacy style.
+  Includes an age restriction check.
+  """
+  required_age = 21
+
+  try:
+      user_age = int(input("State your current cycle (age): "))
+  except ValueError:
+      print("Invalid input for cycle. Access Denied, Malformed Data.")
+      return
+
+  if user_age < required_age:
+    print("Access Denied, Not Enough Cycles.")
+    return
+  else:
+    print("Access Granted, Cycles Consumed.")
+
+  user_name = input("Identify yourself, Program: ")
+
+  if user_name == "Gary":
+    print(f"Greetings Creator! Welcome, {user_name}.")
+  else:
+    print(f"Greetings, Program! Welcome, {user_name}.")
+
+welcome_user()
+                    </textarea>
+                    <button onclick="runPythonCode()" class="quiz-submit-button" style="margin-top: 15px; width: auto;">Execute Program!</button>
+                    <h3>Program Output:</h3>
+                    <pre id="python-output" style="height: 150px;"></pre>
+                </div>
+            </div>
+
+            <!-- Gemini AI Assistant Panel -->
+            <div class="section-container full-width-panel">
+                <h2>Gemini AI Assistant: System Operations ✨</h2>
+                <p class="explanation">
+                    Flynn to User: Need a quick data summary or a concept decoded? This AI assistant is here to help you navigate the informational streams of the Grid.
+                </p>
+                <div class="try-it-out" style="background-color: var(--tron-blue-grid);">
+                    <h3>Text Input:</h3>
+                    <textarea id="gemini-input-text" rows="8" placeholder="Paste text to summarize, or type a programming concept to explain..." style="width: 100%; background-color: var(--tron-code-bg); color: var(--tron-text-light); border: 1px solid var(--tron-text-dark); border-radius: 6px; padding: 10px; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);"></textarea>
+                    <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 15px;">
+                        <button onclick="summarizeText()" style="flex: 1;">Summarize Text ✨</button>
+                        <button onclick="explainConcept()" style="flex: 1;">Explain Concept ✨</button>
+                    </div>
+                    <div id="gemini-loading" style="text-align: center; margin-top: 20px; color: var(--tron-neon-orange); display: none;">
+                        Processing data... Please wait for Grid synchronization.
+                    </div>
+                    <h3>AI Response:</h3>
+                    <pre id="gemini-output" class="output-box" style="height: 150px;"></pre>
+                </div>
+            </div>
+
+            <!-- Right Panel: Presentation Points -->
+            <div class="section-container right-panel presentation-points">
+                <h2>Key Presentation Insights</h2>
+
+                <div class="accordion">
+                    <button class="accordion-header" data-target="presentation-point1">
+                        What I Directed AI to Build <span class="arrow">&gt;</span>
+                    </button>
+                    <div class="accordion-content" id="presentation-point1">
+                        <p>My initial goal was simple: to create a 'Tron Legacy' style greeting program. But with the AI's help, I evolved it into a multi-layered access system that first <strong>validates user eligibility based on 'cycles' (age)</strong>, and then delivers a uniquely <strong>personalized welcome</strong>, even recognizing a special 'Creator' user!</p>
+                    </div>
+                </div>
+
+                <div class="accordion">
+                    <button class="accordion-header" data-target="presentation-point2">
+                        One Cool AI Interaction <span class="arrow">&gt;</span>
+                    </button>
+                    <div class="accordion-content" id="presentation-point2">
+                        <p>One of the coolest features we built with AI was the smart, multi-stage personalization. Beyond just a name, the AI helped me implement an age-gate, only proceeding with the greeting if the user met the 'cycle' requirements, and then adapting the greeting specifically for 'Gary' – making the AI feel much more aware and responsive!</p>
+                    </div>
+                </div>
+
+                <div class="accordion">
+                    <button class="accordion-header" data-target="presentation-point3">
+                        One Challenge I Overcame with AI <span class="arrow">&gt;</span>
+                    </button>
+                    <div class="accordion-content" id="presentation-point3">
+                        <p>A key challenge I tackled with the AI's guidance was understanding and fixing an <strong>IndentationError</strong>. In Python, even a single misplaced space can stop your code cold. The AI helped me understand this strict 'grammar rule' of Python, showing me how crucial precise spacing is for controlling the program's flow, turning a frustrating bug into a clear learning moment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Panel: Python Basics Journey Lesson Plan -->
+        <div class="section-container full-width-panel lesson-plan">
+            <h2>Your Python Basics Journey: A Comprehensive Lesson Plan</h2>
+            <p class="explanation">
+                Welcome, User, to the wonderful world of Python programming! This lesson plan is designed to guide you through the fundamental concepts of Python, from setting up your environment to building a small project. Each unit builds upon the previous one, ensuring a smooth and enjoyable learning experience on the Grid.
+            </p>
+
+            <!-- Unit 1: Getting Started with Python -->
+            <h2 class="accordion-header" data-target="unit1">
+                Unit 1: Getting Started with Python <span class="arrow">&gt;</span>
+            </h2>
+            <div class="content" id="unit1">
+                <h3>Objective: Understand what Python is and set up your development environment.</h3>
+                <h3>1.1 What is Python?</h3>
+                <ul>
+                    <li>An overview of Python's history, philosophy, and popular applications (web development, data science, AI, automation).</li>
+                    <li>Why Python is a great language for beginners.</li>
+                </ul>
+                <h3>1.2 Setting Up Your Environment</h3>
+                <ul>
+                    <li>Python Installation: How to download and install Python on your operating system (Windows, macOS, Linux).</li>
+                    <li>Integrated Development Environments (IDEs): Introduction to popular IDEs like VS Code or PyCharm, and how to choose one.</li>
+                    <li>Running Python: How to execute Python code from the terminal/command prompt and within an IDE.</li>
+                </ul>
+                <h3>1.3 Your First Python Program: "Hello, World!"</h3>
+                <ul>
+                    <li>Writing and running the classic "Hello, World!" program.</li>
+                    <li>Introduction to the <code>print()</code> function.</li>
+                    <li>Understanding basic program execution flow.</li>
+                </ul>
+            </div>
+
+            <!-- Unit 2: Core Concepts - Variables and Data Types -->
+            <h2 class="accordion-header" data-target="unit2">
+                Unit 2: Core Concepts - Variables and Data Types <span class="arrow">&gt;</span>
+            </h2>
+            <div class="content" id="unit2">
+                <h3>Objective: Learn how to store and manipulate different types of information.</h3>
+                <h3>2.1 Variables</h3>
+                <ul>
+                    <li>What are variables and why do we use them?</li>
+                    <li>Rules for naming variables (e.g., meaningful names, no spaces, starts with letter/underscore).</li>
+                    <li>Assigning values to variables.</li>
+                    <li>Reassigning variable values.</li>
+                </ul>
+                <h3>2.2 Basic Data Types</h3>
+                <ul>
+                    <li>Integers (<code>int</code>): Whole numbers (e.g., 5, -100).</li>
+                    <li>Floating-Point Numbers (<code>float</code>): Numbers with decimal points (e.g., 3.14, -0.5).</li>
+                    <li>Strings (<code>str</code>): Text data (e.g., "Hello Python", 'Coding').
+                        <ul>
+                            <li>Single vs. double quotes.</li>
+                            <li>String concatenation.</li>
+                        </ul>
+                    </li>
+                    <li>Booleans (<code>bool</code>): True/False values.</li>
+                </ul>
+                <h3>2.3 Type Conversion (Type Casting)</h3>
+                <ul>
+                    <li>Converting between different data types (e.g., <code>int()</code>, <code>float()</code>, <code>str()</code>).</li>
+                    <li>When and why type conversion is necessary.</li>
+                </ul>
+            </div>
+
+            <!-- Unit 3: Operators and Expressions -->
+            <h2 class="accordion-header" data-target="unit3">
+                Unit 3: Operators and Expressions <span class="arrow">&gt;</span>
+            </h2>
+            <div class="content" id="unit3">
+                <h3>Objective: Perform calculations and make comparisons with data.</h3>
+                <h3>3.1 Arithmetic Operators</h3>
+                <ul>
+                    <li>Addition (<code>+</code>), Subtraction (<code>-</code>), Multiplication (<code>*</code>), Division (<code>/</code>).</li>
+                    <li>Floor Division (<code>//</code>), Modulus (<code>%</code>), Exponentiation (<code>**</code>).</li>
+                    <li>Order of operations (PEMDAS/BODMAS).</li>
+                </ul>
+                <h3>3.2 Comparison (Relational) Operators</h3>
+                <ul>
+                    <li>Equal to (<code>==</code>), Not equal to (<code>!=</code>).</li>
+                    <li>Greater than (<code>&gt;</code>), Less than (<code>&lt;</code>).</li>
+                    <li>Greater than or equal to (<code>&gt;=</code>), Less than or equal to (<code>&lt;=</code>).</li>
+                    <li>Results in Boolean values (<code>True</code>/<code>False</code>).</li>
+                </ul>
+                <h3>3.3 Logical Operators</h3>
+                <ul>
+                    <li><code>and</code>: Both conditions must be True.</li>
+                    <li><code>or</code>: At least one condition must be True.</li>
+                    <li><code>not</code>: Reverses the Boolean value.</li>
+                </ul>
+                <h3>3.4 Assignment Operators</h3>
+                <ul>
+                    <li>Simple assignment (<code>=</code>).</li>
+                    <li>Shorthand assignment operators (e.g., <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>).</li>
+                </ul>
+            </div>
+
+            <!-- Unit 4: Control Flow - Decisions and Loops -->
+            <h2 class="accordion-header" data-target="unit4">
+                Unit 4: Control Flow - Decisions and Loops <span class="arrow">&gt;</span>
+            </h2>
+            <div class="content" id="unit4">
+                <h3>Objective: Make your programs dynamic by controlling their execution path.</h3>
+                <h3>4.1 Conditional Statements (if, elif, else)</h3>
+                <ul>
+                    <li>Executing code based on conditions.</li>
+                    <li>Indentation: The importance of whitespace in Python.</li>
+                    <li>Nested if statements.</li>
+                </ul>
+                <h3>4.2 Loops</h3>
+                <ul>
+                    <li><code>for</code> Loops: Iterating over sequences (like strings or ranges of numbers).</li>
+                    <li>The <code>range()</code> function.</li>
+                    <li><code>while</code> Loops: Repeating code as long as a condition is true.</li>
+                    <li>Preventing infinite loops.</li>
+                </ul>
+                <h3>4.3 Loop Control Statements</h3>
+                <ul>
+                    <li><code>break</code>: Exiting a loop prematurely.</li>
+                    <li><code>continue</code>: Skipping the rest of the current loop iteration and moving to the next.</li>
+                </ul>
+            </div>
+
+            <!-- Unit 5: Data Structures - Collections -->
+            <h2 class="accordion-header" data-target="unit5">
+                Unit 5: Data Structures - Collections <span class="arrow">&gt;</span>
+            </h2>
+            <div class="content" id="unit5">
+                <h3>Objective: Learn to store and organize multiple pieces of data efficiently.</h3>
+                <h3>5.1 Lists</h3>
+                <ul>
+                    <li>Creating lists (<code>[]</code>).</li>
+                    <li>Accessing elements by index.</li>
+                    <li>Slicing lists.</li>
+                    <li>Modifying, adding, and removing elements (e.g., <code>append()</code>, <code>insert()</code>, <code>remove()</code>, <code>pop()</code>).</li>
+                    <li>List methods (e.g., <code>len()</code>, <code>sort()</code>, <code>reverse()</code>).</li>
+                </ul>
+                <h3>5.2 Tuples</h3>
+                <ul>
+                    <li>Creating tuples (<code>()</code>).</li>
+                    <li>Immutability: Understanding that tuples cannot be changed after creation.</li>
+                    <li>Accessing elements and slicing.</li>
+                    <li>When to use tuples vs. lists.</li>
+                </ul>
+                <h3>5.3 Dictionaries</h3>
+            <ul>
+                <li>Creating dictionaries (<code>{key: value}</code>).</li>
+                <li>Accessing values by keys.</li>
+                <li>Adding, modifying, and deleting key-value pairs.</li>
+                <li>Dictionary methods (e.g., <code>keys()</code>, <code>values()</code>, <code>items()</code>).</li>
+            </ul>
+            <h3>5.4 Sets</h3>
+            <ul>
+                <li>Creating sets (<code>{}</code>).</li>
+                <li>Understanding uniqueness (sets store only unique elements).</li>
+                <li>Set operations (union, intersection, difference).</li>
+            </ul>
+        </div>
+
+        <!-- Unit 6: Functions - Reusable Code -->
+        <h2 class="accordion-header" data-target="unit6">
+            Unit 6: Functions - Reusable Code <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="unit6">
+            <h3>Objective: Write modular and organized code by defining your own functions.</h3>
+            <h3>6.1 Defining Functions</h3>
+            <ul>
+                <li>Using the <code>def</code> keyword.</li>
+                <li>Function naming conventions.</li>
+                <li>Docstrings: Documenting your functions.</li>
+            </ul>
+            <h3>6.2 Parameters and Arguments</h3>
+            <ul>
+                <li>Passing information into functions.</li>
+                <li>Positional arguments, keyword arguments.</li>
+                <li>Default parameter values.</li>
+            </ul>
+            <h3>6.3 Return Values</h3>
+            <ul>
+                <li>Using the <code>return</code> statement to send results back from a function.</li>
+                <li>Functions that don't explicitly return a value (implicitly return <code>None</code>).</li>
+            </ul>
+            <h3>6.4 Scope</h3>
+            <ul>
+                <li>Local variables: Defined inside a function, accessible only within it.</li>
+                <li>Global variables: Defined outside functions, accessible everywhere.</li>
+                <li>The <code>global</code> keyword (use with caution!).</li>
+            </ul>
+        </div>
+
+        <!-- Unit 7: Modules and Packages -->
+        <h2 class="accordion-header" data-target="unit7">
+            Unit 7: Modules and Packages <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="unit7">
+            <h3>Objective: Discover how to leverage existing code and organize your own.</h3>
+            <h3>7.1 Importing Modules</h3>
+            <ul>
+                <li>What are modules and why are they useful?</li>
+                <li>Using <code>import</code>, <code>from ... import</code>, <code>import ... as</code>.</li>
+            </ul>
+            <h3>7.2 Using Standard Library Modules</h3>
+            <ul>
+                <li>Exploring common built-in modules (e.g., <code>math</code> for mathematical operations, <code>random</code> for generating random numbers, <code>datetime</code> for dates and times).</li>
+            </ul>
+            <h3>7.3 Introduction to External Packages</h3>
+            <ul>
+                <li>Brief introduction to <code>pip</code> (Python's package installer).</li>
+                <li>Understanding the concept of installing third-party libraries.</li>
+            </ul>
+        </div>
+
+        <!-- Unit 8: File Handling -->
+        <h2 class="accordion-header" data-target="unit8">
+            Unit 8: File Handling <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="unit8">
+            <h3>Objective: Learn to read data from and write data to files.</h3>
+            <h3>8.1 Reading from Files</h3>
+            <ul>
+                <li>Opening files (<code>open()</code>) in read mode ('r').</li>
+                <li>Reading the entire content (<code>read()</code>), line by line (<code>readline()</code>), or all lines into a list (<code>readlines()</code>).</li>
+            </ul>
+            <h3>8.2 Writing to Files</h3>
+            <ul>
+                <li>Opening files in write mode ('w') or append mode ('a').</li>
+                <li>Writing strings to files (<code>write()</code>).</li>
+            </ul>
+            <h3>8.3 The with Statement</h3>
+            <ul>
+                <li>Best practice for file handling to ensure files are properly closed.</li>
+            </ul>
+        </div>
+
+        <!-- Unit 9: Error Handling - try, except -->
+        <h2 class="accordion-header" data-target="unit9">
+            Unit 9: Error Handling - try, except <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="unit9">
+            <h3>Objective: Make your programs robust by handling unexpected errors.</h3>
+            <h3>9.1 Understanding Errors and Exceptions</h3>
+            <ul>
+                <li>Common types of Python errors (e.g., <code>NameError</code>, <code>TypeError</code>, <code>ValueError</code>, <code>IndexError</code>, <code>FileNotFoundError</code>).</li>
+            </ul>
+            <h3>9.2 Using try, except, finally</h3>
+            <ul>
+                <li><code>try</code> block: Code that might raise an exception.</li>
+                <li><code>except</code> block: Code to execute if a specific exception occurs.</li>
+                <li>Handling multiple exceptions.</li>
+                <li><code>finally</code> block: Code that always executes, regardless of whether an exception occurred.</li>
+            </ul>
+        </div>
+
+        <!-- Final Project -->
+        <h2 class="accordion-header" data-target="final-project">
+            Final Project: A Simple Text-Based Adventure Game <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="final-project">
+            <h3>Objective: Apply all the concepts learned to build a fun, interactive program.</h3>
+            <h3>Project Description:</h3>
+            <p>You will create a basic text-based adventure game where the player navigates through different rooms, interacts with simple objects, and makes choices that affect their progress.</p>
+            <h3>Key Concepts to Apply:</h3>
+            <ul>
+                <li>Variables and Data Types: To store player name, inventory, current room, etc.</li>
+                <li>Control Flow (<code>if/elif/else</code> and loops): To handle player choices, room navigation, and game state.</li>
+                <li>Lists/Dictionaries/Sets:
+                    <ul>
+                        <li>Dictionary: To represent rooms (e.g., <code>room = {"name": "Entrance Hall", "description": "A dusty old hall.", "exits": {"north": "Kitchen"}}</code>).</li>
+                        <li>List: For player inventory.</li>
+                        <li>Set (Optional): For tracking visited locations or unique items.</li>
+                    </ul>
+                </li>
+                <li>Functions: To organize game logic (e.g., <code>display_room()</code>, <code>handle_input()</code>, <code>move_player()</code>).</li>
+                <li>File Handling (Optional but Recommended): To save/load game progress.</li>
+                <li>Error Handling: To gracefully manage invalid user inputs.</li>
+            </ul>
+            <h3>Suggested Features:</h3>
+            <ul>
+                <li>Start Screen: Welcome message, option to start a new game.</li>
+                <li>Room Descriptions: Each "room" should have a name and a description.</li>
+                <li>Navigation: Allow the player to move between rooms using commands like "go north", "go south", "go east", "go west".</li>
+                <li>Inventory: Allow the player to pick up and drop items. Display their current inventory.</li>
+                <li>Basic Interaction: Simple commands like "look" (to re-display room description), "examine [item]".</li>
+                <li>Game Over Conditions: (Optional) A way to lose or win the game (e.g., finding a treasure, falling into a trap).</li>
+                <li>Command Loop: The core of your game will be a <code>while</code> loop that continuously prompts the user for input until the game ends.</li>
+            </ul>
+            <h3>Tips for Success:</h3>
+            <ul>
+                <li>Start Small: Don't try to build the entire game at once. Start with navigation, then add inventory, and so on.</li>
+                <li>Plan Your Rooms: Sketch out a small map of your game world.</li>
+                <li>Modularize: Use functions extensively to keep your code clean and readable.</li>
+                <li>Test Frequently: Run your code often to catch bugs early.</li>
+                <li>Have Fun! This is your chance to be creative and apply your new skills.</li>
+            </ul>
+            <p>I'm here to help you every step of the way!</p>
+        </div>
+    </div>
+
+    <!-- NEW: Quiz Section -->
+    <div class="section-container full-width-panel quiz-section">
+        <h2>Recognition Protocol: Test Your Understanding!</h2>
+        <p class="explanation" style="color: var(--tron-text-dark); text-shadow: none;">
+            Flynn to User: The time has come to evaluate your data comprehension. Answer these questions to prove your mastery of the Grid's core programming principles.
+        </p>
+        <div id="quiz-questions-container">
+            <!-- Quiz questions will be dynamically inserted here by JavaScript -->
+        </div>
+        <button id="submit-quiz" class="quiz-submit-button">Submit Protocol</button>
+        <div id="quiz-feedback" class="quiz-feedback"></div>
+    </div>
+
+    <script type="text/python" id="python-script-to-run">
+        # This is the Python script that will be executed by Brython
+        # when the user enters the grid.
+        # It needs to interact with the HTML elements directly.
+
+        from browser import document, html, window
+
+        def welcome_user_brython():
+            required_age = 21
+            intro_feedback_message = document["intro-feedback-message"]
+            intro_screen = document["intro-screen"]
+            main_learning_hub = document["main-learning-hub"]
+            main_welcome_title = document["main-welcome-title"]
+
+            user_age_str = document["intro-age-input"].value
+            user_name = document["intro-name-input"].value
+
+            # Clear previous feedback
+            intro_feedback_message.text = ""
+
+            try:
+                user_age = int(user_age_str)
+            except ValueError:
+                intro_feedback_message.text = "Invalid input for cycle. Access Denied, Malformed Data."
+                intro_feedback_message.style.color = "var(--tron-neon-orange)"
+                return
+
+            if user_age < required_age:
+                intro_feedback_message.text = "Access Denied, Not Enough Cycles."
+                intro_feedback_message.style.color = "var(--tron-neon-orange)"
+                return
+            else:
+                # Access Granted, proceed with name check and transition
+                intro_feedback_message.text = "Access Granted, Cycles Consumed."
+                intro_feedback_message.style.color = "var(--tron-neon-blue)"
+                
+                # Delay the transition slightly for feedback visibility
+                window.setTimeout(lambda: show_main_content(user_name), 1000)
+        
+        def show_main_content(user_name):
+            intro_screen = document["intro-screen"]
+            main_learning_hub = document["main-learning-hub"]
+            main_welcome_title = document["main-welcome-title"]
+
+            intro_screen.classList.add("hidden") # Hide intro screen
+            main_learning_hub.classList.add("visible") # Show main content
+
+            # Customize main welcome message
+            if user_name.lower() == "gary": # Make name check case-insensitive for intro
+                main_welcome_title.text = f"Greetings Creator! Welcome, {user_name}!"
+            elif user_name.strip() == "":
+                 main_welcome_title.text = f"Greetings, Program! Welcome, User!"
+            else:
+                main_welcome_title.text = f"Greetings, Program! Welcome, {user_name}!"
+            
+            # Update the explanation text just below the main title as well
+            document.querySelector('.header-section .explanation').text = f"Greetings, {user_name if user_name.strip() != '' else 'User'}. Kevin Flynn here. Welcome to the digital frontier! Explore the core concepts of your Python script and revisit your presentation insights. When you're ready, test your knowledge with the recognition protocol below."
+
+
+        # Attach the Brython function to the HTML button
+        document["enter-grid-button"].bind("click", welcome_user_brython)
+
+    </script>
+
+
+    <script>
+        // Main JavaScript for Accordions and Simulations (not Brython)
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to handle accordion headers
+            const setupAccordion = (headersSelector, contentClass, closeOthers = true) => {
+                document.querySelectorAll(headersSelector).forEach(header => {
+                    header.addEventListener('click', () => {
+                        const contentId = header.dataset.target;
+                        const content = document.getElementById(contentId);
+
+                        // Toggle active class on clicked header
+                        header.classList.toggle('active');
+
+                        // Toggle show class on content
+                        if (content.classList.contains('show')) {
+                            content.classList.remove('show');
+                            content.style.maxHeight = null;
+                            content.style.paddingTop = '0';
+                            content.style.paddingBottom = '0';
+                        } else {
+                            content.classList.add('show');
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                            setTimeout(() => {
+                                content.style.paddingTop = '20px';
+                                content.style.paddingBottom = '20px';
+                            }, 50);
+                        }
+
+                        // Optional: Close other open sections in the same accordion group
+                        if (closeOthers) {
+                            document.querySelectorAll(headersSelector).forEach(otherHeader => {
+                                if (otherHeader !== header && otherHeader.classList.contains('active')) {
+                                    otherHeader.classList.remove('active');
+                                    const otherContent = document.getElementById(otherHeader.dataset.target);
+                                    otherContent.classList.remove('show');
+                                    otherContent.style.maxHeight = null;
+                                    otherContent.style.paddingTop = '0';
+                                    otherContent.style.paddingBottom = '0';
+                                }
+                            });
+                        }
+                    });
+                });
+            };
+
+            // Setup for Learning Concepts Accordion (Left Panel)
+            setupAccordion('.section-container.left-panel .accordion-header', '.content', true);
+
+            // Setup for Presentation Points Accordion (Right Panel)
+            setupAccordion('.section-container.right-panel .accordion-header', '.accordion-content', true);
+
+            // Setup for Lesson Plan Accordion (Full Width Panel)
+            setupAccordion('.section-container.full-width-panel .accordion-header', '.content', true);
+
+
+            // --- Simulation Functions (adapted for new output box style) ---
+
+            function showOutput(outputDiv, message, isError = false) {
+                outputDiv.innerHTML = message;
+                outputDiv.classList.add('show');
+                outputDiv.style.maxHeight = outputDiv.scrollHeight + 'px';
+                outputDiv.style.padding = '10px';
+                outputDiv.style.opacity = '1';
+
+                if (isError) {
+                    outputDiv.style.backgroundColor = 'var(--tron-error-output-bg)';
+                    outputDiv.style.borderColor = 'var(--tron-error-output-border)';
+                    outputDiv.style.color = 'var(--tron-error-output-text)';
+                    outputDiv.style.boxShadow = '0 0 8px rgba(255, 144, 0, 0.4)';
+                } else {
+                    outputDiv.style.backgroundColor = 'var(--tron-success-output-bg)';
+                    outputDiv.style.borderColor = 'var(--tron-success-output-border)';
+                    outputDiv.style.color = 'var(--tron-success-output-text)';
+                    outputDiv.style.boxShadow = '0 0 8px rgba(0, 200, 83, 0.4)';
+                }
+            }
+
+            // Simulates the function call
+            window.simulateFunctionCall = function() {
+                const outputDiv = document.getElementById('function-output');
+                const message = `
+                    <p>Function <code>welcome_user()</code> is called!</p>
+                    <p>Next, it would ask for age: <em>"State your current cycle (age): "</em></p>
+                    <p>... and then proceed based on your input, just like running the actual script!</p>
+                `;
+                showOutput(outputDiv, message);
+            }
+
+            // Simulates showing variable value
+            window.showVariableValue = function() {
+                const outputDiv = document.getElementById('variable-output');
+                const requiredAge = 21; // From your script
+                const message = `<p>The variable <code>required_age</code> currently holds the value: <strong>${requiredAge}</strong></p>`;
+                showOutput(outputDiv, message);
+            }
+
+            // Simulates Input/Output
+            window.simulateIO = function() {
+                const inputElement = document.getElementById('io-input');
+                const outputDiv = document.getElementById('io-output');
+                const inputText = inputElement.value;
+
+                if (inputText.trim() === '') {
+                    showOutput(outputDiv, '<p>Please type something first!</p>', true);
+                } else {
+                    const message = `<p>Program received: <em>"${inputText}"</em></p><p>Program printed: <em>"You typed: ${inputText}"</em></p>`;
+                    showOutput(outputDiv, message);
+                }
+            }
+
+            // Simulates Data Type Conversion
+            window.simulateConversion = function() {
+                const inputElement = document.getElementById('convert-input');
+                const outputDiv = document.getElementById('convert-output');
+                const inputText = inputElement.value;
+
+                try {
+                    const convertedNumber = parseInt(inputText);
+                    if (isNaN(convertedNumber)) {
+                         const message = `<p>Input: "${inputText}"</p><p>Error! Could not convert "${inputText}" to a whole number (int()).</p><p>This would cause a <code>ValueError</code> in Python if not handled.</p>`;
+                         showOutput(outputDiv, message, true);
+                    } else {
+                        const message = `<p>Input: "${inputText}"</p><p>Converted to number: <strong>${convertedNumber}</strong> (type: integer)</p>`;
+                        showOutput(outputDiv, message);
+                    }
+                } catch (e) {
+                    const message = `<p>Input: "${inputText}"</p><p>Error converting to number: ${e.message}</p>`;
+                    showOutput(outputDiv, message, true);
+                }
+            }
+
+            // Simulates Control Flow (if/else)
+            window.simulateDecision = function() {
+                const ageInput = document.getElementById('age-input');
+                const nameInput = document.getElementById('name-input');
+                const outputDiv = document.getElementById('decision-output');
+
+                const userAge = parseInt(ageInput.value);
+                const userName = nameInput.value;
+                const requiredAge = 21; // From your script
+
+                let outputMessage = '';
+                let isErrorMessage = false;
+
+                if (isNaN(userAge) || userName.trim() === '') {
+                    outputMessage = '<p>Please enter a valid age and a name to simulate!</p>';
+                    isErrorMessage = true;
+                } else {
+                    if (userAge < requiredAge) {
+                        outputMessage = `
+                            <p>Age (${userAge}) is less than ${requiredAge}.</p>
+                            <p><code>Access Denied, Not Enough Cycles.</code></p>
+                        `;
+                    } else {
+                        outputMessage = `<p>Age (${userAge}) is sufficient. <code>Access Granted, Cycles Consumed.</code></p>`;
+                        if (userName === "Gary") {
+                            outputMessage += `<p>Name is "Gary". <code>Greetings Creator! Welcome, ${userName}.</code></p>`;
+                        } else {
+                            outputMessage += `<p>Name is not "Gary". <code>Greetings, Program! Welcome, ${userName}.</code></p>`;
+                        }
+                    }
+                }
+                showOutput(outputDiv, outputMessage, isErrorMessage);
+            }
+
+            // Simulates Error Handling (try/except)
+            window.simulateErrorHandling = function() {
+                const inputElement = document.getElementById('error-input');
+                const outputDiv = document.getElementById('error-handling-output');
+                const inputText = inputElement.value;
+
+                try {
+                    const parsedAge = parseInt(inputText);
+                    if (isNaN(parsedAge)) {
+                        throw new Error("ValueError: invalid literal for int() with base 10: '" + inputText + "'");
+                    }
+                    const message = `<p>Input "${inputText}" successfully converted to number ${parsedAge}.</p><p>(Python would continue running)</p>`;
+                    showOutput(outputDiv, message);
+                } catch (e) {
+                    const message = `<p>Input: "${inputText}"</p><p>Caught Expected Error: ${e.message}</p><p>Python would print "Invalid input for cycle. Access Denied, Malformed Data." and then <code>return</code> (stop the function).</p>`;
+                    showOutput(outputDiv, message, true);
+                }
+            }
+
+            // Simulates F-String
+            window.simulateFString = function() {
+                const nameInput = document.getElementById('fstring-name');
+                const outputDiv = document.getElementById('fstring-output');
+                const userName = nameInput.value;
+
+                if (userName.trim() === '') {
+                    showOutput(outputDiv, '<p>Please enter a name!</p>', true);
+                } else {
+                    const message = `<p>Using f-string: <code>print(f"Greetings Creator! Welcome, {userName}.")</code></p><p>Result: <strong>Greetings Creator! Welcome, ${userName}.</strong></p>`;
+                    showOutput(outputDiv, message);
+                }
+            }
+
+            // Brython specific functions for live editor
+            window.runPythonCode = function() {
+                const codeInput = document.getElementById('python-code-input');
+                const outputElement = document.getElementById('python-output');
+                outputElement.textContent = 'Executing...'; // Clear and show loading
+                outputElement.style.color = 'var(--tron-text-light)';
+                outputElement.style.backgroundColor = 'var(--tron-code-bg)';
+                outputElement.style.borderColor = 'var(--tron-text-dark)';
+                outputElement.style.boxShadow = '0 0 10px var(--tron-neon-blue)'; // Reset box shadow
+
+                try {
+                    // Temporarily redirect sys.stdout to our output element
+                    const original_stdout = window.__BRYTHON__.stdout;
+                    window.__BRYTHON__.stdout = new (class {
+                        write(data) {
+                            outputElement.textContent += data;
+                        }
+                        flush() { /* no-op */ }
+                    })();
+
+                    // Execute the Python code
+                    __BRYTHON__.run_script(codeInput.value, '__main__', true);
+
+                } catch (e) {
+                    // Catch Python errors and display them
+                    outputElement.textContent = `PROGRAM ERROR: ${e.__class__.__name__}: ${e.args[0]}`;
+                    outputElement.style.color = 'var(--tron-error-output-text)';
+                    outputElement.style.backgroundColor = 'var(--tron-error-output-bg)';
+                    outputElement.style.borderColor = 'var(--tron-error-output-border)';
+                    outputElement.style.boxShadow = '0 0 10px var(--tron-error-output-border)';
+                } finally {
+                    // Restore original sys.stdout
+                    // This is handled by Brython's internal mechanisms, no need to manually restore for this usage.
+                }
+            };
+
+
+            // Quiz logic
+            const quizQuestions = [
+                {
+                    question: "What is the primary purpose of the 'print()' function in Python?",
+                    options: [
+                        "A) To get user input",
+                        "B) To display messages or results on the screen",
+                        "C) To perform calculations",
+                        "D) To store data in a variable"
+                    ],
+                    correctAnswer: "B"
+                },
+                {
+                    question: "In Python, which of these concepts is like a labeled container for storing information?",
+                    options: [
+                        "A) Function",
+                        "B) Comment",
+                        "C) Variable",
+                        "D) Operator"
+                    ],
+                    correctAnswer: "C"
+                },
+                {
+                    question: "If a user types '25' into an 'input()' function, what data type is it *initially* in Python?",
+                    options: [
+                        "A) Integer (`int`)",
+                        "B) Float (`float`)",
+                        "C) String (`str`)",
+                        "D) Boolean (`bool`)"
+                    ],
+                    correctAnswer: "C"
+                },
+                {
+                    question: "What does the '==' (double equals sign) operator do in Python?",
+                    options: [
+                        "A) Assigns a value to a variable",
+                        "B) Performs addition between two numbers",
+                        "C) Checks if two values are exactly equal",
+                        "D) Reverses a True/False value"
+                    ],
+                    correctAnswer: "C"
+                },
+                {
+                    question: "What is the main purpose of an 'if/else' statement in Python?",
+                    options: [
+                        "A) To repeat actions many times",
+                        "B) To store lists of data",
+                        "C) To make your program choose different actions based on a condition",
+                        "D) To define reusable blocks of code"
+                    ],
+                    correctAnswer: "C"
+                }
+            ];
+
+            const quizContainer = document.getElementById('quiz-questions-container');
+            const quizFeedback = document.getElementById('quiz-feedback');
+            const quizSubmitButton = document.getElementById('submit-quiz');
+
+            if (quizContainer) {
+                quizQuestions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.classList.add('quiz-question');
+                    questionDiv.innerHTML = `<p><strong>${index + 1}. ${q.question}</strong></p>`;
+                    
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.classList.add('quiz-options');
+                    q.options.forEach(option => {
+                        const label = document.createElement('label');
+                        label.innerHTML = `<input type="radio" name="question${index}" value="${option.charAt(0)}"> ${option}`;
+                        optionsDiv.appendChild(label);
+                    });
+                    questionDiv.appendChild(optionsDiv);
+                    quizContainer.appendChild(questionDiv);
+                });
+
+                quizSubmitButton.addEventListener('click', () => {
+                    let score = 0;
+                    let allAnswered = true;
+                    quizFeedback.innerHTML = ''; // Clear previous feedback
+
+                    quizQuestions.forEach((q, index) => {
+                        const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                        if (selectedOption) {
+                            if (selectedOption.value === q.correctAnswer) {
+                                score++;
+                            }
+                        } else {
+                            allAnswered = false;
+                        }
+                    });
+
+                    if (!allAnswered) {
+                        showOutput(quizFeedback, "Flynn to User: Initiate all protocols! Please answer all questions before submitting your progress.", true);
+                    } else {
+                        const totalQuestions = quizQuestions.length;
+                        const percentage = (score / totalQuestions) * 100;
+                        let feedbackMessage = '';
+                        let isCorrectOverall = false;
+
+                        if (percentage === 100) {
+                            feedbackMessage = `
+                                <p>Flynn to User: CLU-Level Intellect Detected! All answers are correct. Your knowledge of Python is optimized!</p>
+                                <p>Score: ${score} / ${totalQuestions} (${percentage}%)</p>
+                            `;
+                            isCorrectOverall = true;
+                        } else if (percentage >= 70) {
+                            feedbackMessage = `
+                                <p>Flynn to User: Sub-routine Complete! You're making strong progress on the Grid. Review the areas where programs might diverge.</p>
+                                <p>Score: ${score} / ${totalQuestions} (${percentage}%)</p>
+                            `;
+                        } else {
+                            feedbackMessage = `
+                                <p>Flynn to User: Data corruption detected in some sectors. Keep studying the core concepts to re-optimize your understanding!</p>
+                                <p>Score: ${score} / ${totalQuestions} (${percentage}%)</p>
+                            </p>`;
+                            isCorrectOverall = true; // Use incorrect styling for scores below 70%
+                        }
+                        showOutput(quizFeedback, feedbackMessage, !isCorrectOverall);
+                        if(percentage === 100) { // Specific styling for perfect score
+                            quizFeedback.style.backgroundColor = '#0056b3'; /* Deeper blue for perfect */
+                            quizFeedback.style.borderColor = '#00FFFF';
+                            quizFeedback.style.color = '#E0FFFF';
+                            quizFeedback.style.boxShadow = '0 0 20px #00FFFF';
+                        }
+                    }
+                });
+            }
+
+            // Gemini API Integration Functions
+            const geminiInputText = document.getElementById('gemini-input-text');
+            const geminiOutput = document.getElementById('gemini-output');
+            const geminiLoading = document.getElementById('gemini-loading');
+
+            async function callGeminiAPI(prompt) {
+                geminiLoading.style.display = 'block'; // Show loading indicator
+                geminiOutput.classList.remove('show'); // Hide previous output
+                geminiOutput.innerHTML = ''; // Clear previous output
+
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Canvas will automatically provide it in runtime
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API Error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        console.error('Unexpected API response structure:', result);
+                        return "Error: Unable to process data. Malformed response detected.";
+                    }
+                } catch (error) {
+                    console.error('Gemini API call failed:', error);
+                    return `Error: Data stream interrupted. ${error.message}`;
+                } finally {
+                    geminiLoading.style.display = 'none'; // Hide loading indicator
+                }
+            }
+
+            window.summarizeText = async function() {
+                const textToSummarize = geminiInputText.value;
+                if (!textToSummarize.trim()) {
+                    showOutput(geminiOutput, "Flynn to User: Input field is empty. Provide data for summarization.", true);
+                    return;
+                }
+                const prompt = `Summarize the following text concisely:\n\n${textToSummarize}`;
+                const summary = await callGeminiAPI(prompt);
+                showOutput(geminiOutput, `<p><strong>Summary:</strong></p>${summary}`);
+            };
+
+            window.explainConcept = async function() {
+                const conceptToExplain = geminiInputText.value;
+                if (!conceptToExplain.trim()) {
+                    showOutput(geminiOutput, "Flynn to User: Input field is empty. Specify a concept for explanation.", true);
+                    return;
+                }
+                const prompt = `Explain the programming concept "${conceptToExplain}" in a simple, easy-to-understand manner for a non-coder, relating it to the Tron Grid if possible.`;
+                const explanation = await callGeminiAPI(prompt);
+                showOutput(geminiOutput, `<p><strong>Explanation of "${conceptToExplain}":</strong></p>${explanation}`);
+            };
+        });
+    </script>
+</body>
+</html>
