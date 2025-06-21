@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Python Concepts from Your Script</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            background-color: #f0f4f8; /* Light blue-gray background */
+            color: #334155; /* Dark text */
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for better scrolling */
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1a202c; /* Darker heading */
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+        h2 {
+            color: #2b6cb0; /* Blue heading for concepts */
+            font-size: 1.6em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            padding: 15px 20px;
+            background-color: #e2e8f0; /* Light gray background */
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+            user-select: none; /* Prevent text selection on click */
+            border: 1px solid #cbd5e0;
+        }
+        h2:hover {
+            background-color: #cfd8e5;
+        }
+        h2.active {
+            background-color: #a0aec0; /* Darker when active */
+            color: white;
+        }
+        h2 .arrow {
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        h2.active .arrow {
+            transform: rotate(90deg);
+        }
+        .content {
+            padding: 10px 25px 20px;
+            background-color: #f8fafc; /* Very light background for content */
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+        }
+        .content.show {
+            max-height: 500px; /* Adjust as needed */
+            padding: 10px 25px 20px;
+        }
+        pre {
+            background-color: #2d3748; /* Dark background for code */
+            color: #edf2f7; /* Light text for code */
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .explanation {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+        .try-it-out {
+            background-color: #ebf4ff; /* Light blue for try-it-out */
+            border: 1px dashed #90cdf4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .try-it-out h3 {
+            color: #2c5282;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .try-it-out input[type="text"],
+        .try-it-out input[type="number"] {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #a0aec0;
+            border-radius: 5px;
+            width: calc(50% - 20px);
+            box-sizing: border-box;
+        }
+        .try-it-out button {
+            padding: 10px 20px;
+            background-color: #4299e1; /* Blue button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-weight: 600;
+        }
+        .try-it-out button:hover {
+            background-color: #3182ce;
+        }
+        .try-it-out #output {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e6fffa; /* Light green for output */
+            border: 1px solid #38b2ac;
+            border-radius: 5px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap; /* Preserve whitespace and wrap */
+        }
+        .try-it-out #error-output {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fff5f5; /* Light red for errors */
+            border: 1px solid #fc8181;
+            border-radius: 5px;
+            color: #c53030;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your AI Native Journey: Concepts Explored!</h1>
+        <p class="explanation">
+            Welcome, aspiring programmer! This tool will help you review the core Python concepts I learned this week, all based on my "Tron Legacy" greeting script. Click on each concept to dive in!
+        </p>
+
+        <!-- Concept 1: Functions -->
+        <h2 class="accordion-header" data-target="concept1">
+            1. Functions: Organized Actions <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="concept1">
+            <p class="explanation">
+                Think of a function as a mini-program or a recipe for a specific task. You give it a name (like `welcome_user`), and put all the related instructions inside it. Once defined, you can call or "run" that function whenever you need it, avoiding repeating code!
+            </p>
+            <h3>From Your Script:</h3>
+            <pre><code>def welcome_user():
+    # ... (code inside the function) ...
+
+# Example usage:
+welcome_user() # This line 'calls' the function to make it run!
+</code></pre>
+            <div class="try-it-out">
+                <h3>Try It Out! (Simulated Function Call)</h3>
+                <p>Imagine this button is the <code>welcome_user()</code> line. Clicking it starts the function's process:</p>
+                <button onclick="simulateFunctionCall()">Simulate Running welcome_user()</button>
+                <div id="function-output" class="output-box"></div>
+            </div>
+        </div>
+
+        <!-- Concept 2: Variables -->
+        <h2 class="accordion-header" data-target="concept2">
+            2. Variables: Labeled Containers <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="concept2">
+            <p class="explanation">
+                A variable is like a labeled container or box where you store pieces of information. You give the box a name (the variable name), put a value inside it, and then you can use that name to get or change the value later in your script.
+            </p>
+            <h3>From Your Script:</h3>
+            <pre><code>required_age = 21
+user_name = input("Identify yourself, Program: ")
+</code></pre>
+            <div class="try-it-out">
+                <h3>Try It Out! (Simulate Variable Storage)</h3>
+                <p>Click the button to see what value is stored in <code>required_age</code>:</p>
+                <button onclick="showVariableValue()">Show 'required_age' Value</button>
+                <div id="variable-output" class="output-box"></div>
+            </div>
+        </div>
+
+        <!-- Concept 3: Input & Output -->
+        <h2 class="accordion-header" data-target="concept3">
+            3. Input & Output: Talking to Your Program <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="concept3">
+            <p class="explanation">
+                Programs aren't much fun if they can't talk to us! <code>input()</code> allows your program to ask the user for information (input), and <code>print()</code> allows your program to display messages or results back to the user (output).
+            </p>
+            <h3>From Your Script:</h3>
+            <pre><code>user_name = input("Identify yourself, Program: ")
+print(f"Greetings, Program! Welcome, {user_name}.")
+</code></pre>
+            <div class="try-it-out">
+                <h3>Try It Out! (Simulate Input/Output)</h3>
+                <label for="io-input">Type something:</label>
+                <input type="text" id="io-input" placeholder="Your message here">
+                <button onclick="simulateIO()">See what it prints</button>
+                <div id="io-output" class="output-box"></div>
+            </div>
+        </div>
+
+        <!-- Concept 4: Data Types & Conversion -->
+        <h2 class="accordion-header" data-target="concept4">
+            4. Data Types & Conversion: Different Kinds of Info <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="concept4">
+            <p class="explanation">
+                Python handles different "types" of information differently, like whole numbers (`int`), text (`str`), or True/False (`bool`). When you get input from a user, it's *always* text. You often need to `convert` it (e.g., using `int()`) if you want to do math with it!
+            </p>
+            <h3>From Your Script:</h3>
+            <pre><code>user_age = int(input("State your current cycle (age): "))
+</code></pre>
+            <div class="try-it-out">
+                <h3>Try It Out! (Simulate Conversion)</h3>
+                <label for="convert-input">Enter a number or text:</label>
+                <input type="text" id="convert-input" placeholder="e.g., 25 or 'hello'">
+                <button onclick="simulateConversion()">Convert to Number</button>
+                <div id="convert-output" class="output-box"></div>
+            </div>
+        </div>
+
+        <!-- Concept 5: Control Flow (if/else) -->
+        <h2 class="accordion-header" data-target="concept5">
+            5. Control Flow (if/else): Making Decisions <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="concept5">
+            <p class="explanation">
+                This is how your program makes choices! An <code>if/else</code> statement checks a condition. If the condition is `True`, it runs one block of code. If it's `False`, it runs a different block. This controls the "flow" of your script!
+            </p>
+            <h3>From Your Script:</h3>
+            <pre><code>if user_age < required_age:
+    print("Access Denied, Not Enough Cycles.")
+else:
+    print("Access Granted, Cycles Consumed.")
+
+# ... later ...
+if user_name == "Gary":
+    print(f"Greetings Creator! Welcome, {user_name}.")
+else:
+    print(f"Greetings, Program! Welcome, {user_name}.")
+</code></pre>
+            <div class="try-it-out">
+                <h3>Try It Out! (Simulate Decision Making)</h3>
+                <label for="age-input">Your Cycle (Age):</label>
+                <input type="number" id="age-input" value="25">
+                <label for="name-input">Your Name:</label>
+                <input type="text" id="name-input" value="Gary">
+                <button onclick="simulateDecision()">Get Greeting!</button>
+                <div id="decision-output" class="output-box"></div>
+            </div>
+        </div>
+
+        <!-- Concept 6: Error Handling (try/except/return) -->
+        <h2 class="accordion-header" data-target="concept6">
+            6. Error Handling: Handling Unexpected Problems <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="concept6">
+            <p class="explanation">
+                Even the best programs can run into unexpected problems (like a user typing text when a number is expected). <code>try/except</code> blocks help your program deal with these "errors" gracefully instead of crashing. <code>return</code> is used to stop a function early.
+            </p>
+            <h3>From Your Script:</h3>
+            <pre><code>try:
+    user_age = int(input("State your current cycle (age): "))
+except ValueError:
+    print("Invalid input for cycle. Access Denied, Malformed Data.")
+    return # Stops the function if there's a ValueError
+</code></pre>
+            <div class="try-it-out">
+                <h3>Try It Out! (Simulate Error Handling)</h3>
+                <label for="error-input">Enter age (try text!):</label>
+                <input type="text" id="error-input" placeholder="e.g., 'abc' or 25">
+                <button onclick="simulateErrorHandling()">Test Input</button>
+                <div id="error-handling-output" class="output-box"></div>
+            </div>
+        </div>
+
+        <!-- Concept 7: Comments -->
+        <h2 class="accordion-header" data-target="concept7">
+            7. Comments: Notes for Humans <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="concept7">
+            <p class="explanation">
+                Lines starting with <code>#</code> (or text inside <code>"""</code> triple quotes, like your function's description) are called comments. Python completely ignores them when running the code. They are notes for programmers to explain what the code does or why certain decisions were made!
+            </p>
+            <h3>From Your Script:</h3>
+            <pre><code># Ask for the user's name
+# This variable is intended to be used later
+"""
+Asks the user for their name and prints a personalized welcome message, Tron Legacy style.
+Includes an age restriction check.
+"""
+</code></pre>
+            <div class="try-it-out">
+                <h3>Why are comments important?</h3>
+                <p>They make your code easier for *you* to understand later, and incredibly helpful for *others* who read your code!</p>
+            </div>
+        </div>
+
+        <!-- Concept 8: F-Strings -->
+        <h2 class="accordion-header" data-target="concept8">
+            8. F-Strings: Easy Text Customization <span class="arrow">&gt;</span>
+        </h2>
+        <div class="content" id="concept8">
+            <p class="explanation">
+                F-strings (formatted string literals) are a super convenient way to embed variables directly into your text. You start the string with an <code>f</code>, and then put your variable names inside curly braces <code>{}</code> within the string. Python replaces the `{}` with the variable's actual value!
+            </p>
+            <h3>From Your Script:</h3>
+            <pre><code>print(f"Greetings Creator! Welcome, {user_name}.")
+</code></pre>
+            <div class="try-it-out">
+                <h3>Try It Out! (Simulate F-String)</h3>
+                <label for="fstring-name">Enter a name:</label>
+                <input type="text" id="fstring-name" value="Tester">
+                <button onclick="simulateFString()">Generate F-String</button>
+                <div id="fstring-output" class="output-box"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const headers = document.querySelectorAll('.accordion-header');
+
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const contentId = header.dataset.target;
+                    const content = document.getElementById(contentId);
+
+                    // Toggle active class on clicked header
+                    header.classList.toggle('active');
+
+                    // Toggle show class on content
+                    if (content.classList.contains('show')) {
+                        content.classList.remove('show');
+                        content.style.maxHeight = null;
+                    } else {
+                        content.classList.add('show');
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    }
+
+                    // Optional: Close other open sections
+                    headers.forEach(otherHeader => {
+                        if (otherHeader !== header) {
+                            otherHeader.classList.remove('active');
+                            const otherContent = document.getElementById(otherHeader.dataset.target);
+                            otherContent.classList.remove('show');
+                            otherContent.style.maxHeight = null;
+                        }
+                    });
+                });
+            });
+        });
+
+        // --- Simulation Functions ---
+
+        // Simulates the function call
+        function simulateFunctionCall() {
+            const outputDiv = document.getElementById('function-output');
+            outputDiv.innerHTML = `
+                <p>Function <code>welcome_user()</code> is called!</p>
+                <p>Next, it would ask for age: <em>"State your current cycle (age): "</em></p>
+                <p>... and then proceed based on your input, just like running the actual script!</p>
+            `;
+            outputDiv.classList.add('show');
+        }
+
+        // Simulates showing variable value
+        function showVariableValue() {
+            const outputDiv = document.getElementById('variable-output');
+            const requiredAge = 21; // From your script
+            outputDiv.innerHTML = `<p>The variable <code>required_age</code> currently holds the value: <strong>${required_age}</strong></p>`;
+            outputDiv.classList.add('show');
+        }
+
+        // Simulates Input/Output
+        function simulateIO() {
+            const inputElement = document.getElementById('io-input');
+            const outputDiv = document.getElementById('io-output');
+            const inputText = inputElement.value;
+
+            if (inputText.trim() === '') {
+                outputDiv.innerHTML = '<p>Please type something first!</p>';
+                outputDiv.style.backgroundColor = '#fff3cd'; // Yellow for warning
+                outputDiv.style.borderColor = '#ffc107';
+            } else {
+                outputDiv.innerHTML = `<p>Program received: <em>"${inputText}"</em></p><p>Program printed: <em>"You typed: ${inputText}"</em></p>`;
+                outputDiv.style.backgroundColor = '#e6fffa'; // Green for success
+                outputDiv.style.borderColor = '#38b2ac';
+            }
+            outputDiv.classList.add('show');
+        }
+
+        // Simulates Data Type Conversion
+        function simulateConversion() {
+            const inputElement = document.getElementById('convert-input');
+            const outputDiv = document.getElementById('convert-output');
+            const inputText = inputElement.value;
+
+            try {
+                const convertedNumber = parseInt(inputText);
+                if (isNaN(convertedNumber)) {
+                     outputDiv.innerHTML = `<p>Input: "${inputText}"</p><p style="color: #c53030;">Error! Could not convert "${inputText}" to a whole number (int()).</p><p>This would cause a <code>ValueError</code> in Python if not handled.</p>`;
+                     outputDiv.style.backgroundColor = '#fff5f5';
+                     outputDiv.style.borderColor = '#fc8181';
+                } else {
+                    outputDiv.innerHTML = `<p>Input: "${inputText}"</p><p>Converted to number: <strong>${convertedNumber}</strong> (type: integer)</p>`;
+                    outputDiv.style.backgroundColor = '#e6fffa';
+                    outputDiv.style.borderColor = '#38b2ac';
+                }
+            } catch (e) {
+                // This catch is mostly for JS, Python's int() is stricter.
+                outputDiv.innerHTML = `<p>Input: "${inputText}"</p><p style="color: #c53030;">Error converting to number: ${e.message}</p>`;
+                outputDiv.style.backgroundColor = '#fff5f5';
+                outputDiv.style.borderColor = '#fc8181';
+            }
+            outputDiv.classList.add('show');
+        }
+
+        // Simulates Control Flow (if/else)
+        function simulateDecision() {
+            const ageInput = document.getElementById('age-input');
+            const nameInput = document.getElementById('name-input');
+            const outputDiv = document.getElementById('decision-output');
+
+            const userAge = parseInt(ageInput.value);
+            const userName = nameInput.value;
+            const requiredAge = 21; // From your script
+
+            let outputMessage = '';
+
+            if (isNaN(userAge) || userName.trim() === '') {
+                outputMessage = '<p style="color: #c53030;">Please enter a valid age and a name to simulate!</p>';
+                 outputDiv.style.backgroundColor = '#fff5f5';
+                 outputDiv.style.borderColor = '#fc8181';
+            } else {
+                if (userAge < requiredAge) {
+                    outputMessage = `
+                        <p>Age (${userAge}) is less than ${requiredAge}.</p>
+                        <p><code>Access Denied, Not Enough Cycles.</code></p>
+                    `;
+                     outputDiv.style.backgroundColor = '#e6fffa';
+                     outputDiv.style.borderColor = '#38b2ac';
+                } else {
+                    outputMessage = `<p>Age (${userAge}) is sufficient. <code>Access Granted, Cycles Consumed.</code></p>`;
+                    if (userName === "Gary") {
+                        outputMessage += `<p>Name is "Gary". <code>Greetings Creator! Welcome, ${userName}.</code></p>`;
+                    } else {
+                        outputMessage += `<p>Name is not "Gary". <code>Greetings, Program! Welcome, ${userName}.</code></p>`;
+                    }
+                     outputDiv.style.backgroundColor = '#e6fffa';
+                     outputDiv.style.borderColor = '#38b2ac';
+                }
+            }
+            outputDiv.innerHTML = outputMessage;
+            outputDiv.classList.add('show');
+        }
+
+        // Simulates Error Handling (try/except)
+        function simulateErrorHandling() {
+            const inputElement = document.getElementById('error-input');
+            const outputDiv = document.getElementById('error-handling-output');
+            const inputText = inputElement.value;
+
+            try {
+                const parsedAge = parseInt(inputText);
+                if (isNaN(parsedAge)) {
+                    throw new Error("ValueError: invalid literal for int() with base 10: '" + inputText + "'");
+                }
+                outputDiv.innerHTML = `<p>Input "${inputText}" successfully converted to number ${parsedAge}.</p><p style="color: #007bff;">(Python would continue running)</p>`;
+                outputDiv.style.backgroundColor = '#e6fffa';
+                outputDiv.style.borderColor = '#38b2ac';
+            } catch (e) {
+                outputDiv.innerHTML = `<p>Input: "${inputText}"</p><p style="color: #c53030;">Caught Expected Error: ${e.message}</p><p>Python would print "Invalid input for cycle. Access Denied, Malformed Data." and then <code>return</code> (stop the function).</p>`;
+                outputDiv.style.backgroundColor = '#fff5f5';
+                outputDiv.style.borderColor = '#fc8181';
+            }
+            outputDiv.classList.add('show');
+        }
+
+        // Simulates F-String
+        function simulateFString() {
+            const nameInput = document.getElementById('fstring-name');
+            const outputDiv = document.getElementById('fstring-output');
+            const userName = nameInput.value;
+
+            if (userName.trim() === '') {
+                outputDiv.innerHTML = '<p>Please enter a name!</p>';
+                outputDiv.style.backgroundColor = '#fff3cd';
+                outputDiv.style.borderColor = '#ffc107';
+            } else {
+                outputDiv.innerHTML = `<p>Using f-string: <code>print(f"Greetings Creator! Welcome, {userName}.")</code></p><p>Result: <strong>Greetings Creator! Welcome, ${userName}.</strong></p>`;
+                outputDiv.style.backgroundColor = '#e6fffa';
+                outputDiv.style.borderColor = '#38b2ac';
+            }
+            outputDiv.classList.add('show');
+        }
+
+        // Add a common class for output boxes
+        document.querySelectorAll('.output-box').forEach(box => {
+            box.classList.remove('show'); // Ensure hidden initially
+            box.style.maxHeight = null;
+        });
+    </script>
+</body>
+</html>
