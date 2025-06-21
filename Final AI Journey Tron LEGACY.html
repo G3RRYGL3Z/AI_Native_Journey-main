@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My AI Native Journey: The Grid</title>
+    <title>My AI Native Journey: The Grid Awaits!</title>
     <!-- Brython Core Library -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10.7/brython.min.js"></script>
     <!-- Brython Standard Library (for features like sys.stdout redirection) -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10.7/brython_stdlib.min.js"></script>
-    <!-- Initialize Brython right after loading its libraries -->
-    <script type="text/javascript">
-        brython(1);
-    </script>
 
     <style>
         /* Tron Legacy Color Variables */
@@ -30,12 +26,14 @@
             --tron-error-output-bg: #420000; /* Darker red for error output */
             --tron-error-output-border: #d50000; /* Red border for error */
             --tron-error-output-text: #ffcdd2; /* Light red text */
+            --tron-error-text-intro: #FF6347; /* Tomato red for intro error messages */
+            --tron-error-border-intro: #DC143C; /* Crimson red for intro error borders */
         }
 
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
-            padding: 0; /* Remove body padding here, handle in containers */
+            padding: 0;
             background-color: var(--tron-dark-bg);
             color: var(--tron-text-light);
             line-height: 1.6;
@@ -45,7 +43,7 @@
             align-items: center;
             justify-content: flex-start;
             text-shadow: 0 0 5px var(--tron-neon-blue);
-            overflow-y: auto;
+            overflow-y: auto; /* Enable scrolling for the body */
         }
 
         /* --- Intro Screen Styles --- */
@@ -70,85 +68,114 @@
         #intro-screen.hidden {
             opacity: 0;
             pointer-events: none; /* Make it unclickable when hidden */
+            /* Add transform to move it out of view entirely after fade for robustness */
+            transform: translateY(-100vh);
         }
+        #intro-screen .intro-container-content { /* Renamed to avoid conflict with main-container */
+            background-color: var(--tron-blue-grid);
+            border-radius: 12px;
+            box-shadow: 0 0 25px var(--tron-neon-blue), inset 0 0 15px var(--tron-neon-blue);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%; /* Responsive width */
+            box-sizing: border-box;
+            border: 2px solid var(--tron-neon-blue); /* Stronger border */
+            animation: container-glow 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes container-glow {
+            from { box-shadow: 0 0 15px var(--tron-neon-blue), inset 0 0 10px var(--tron-neon-blue); }
+            to { box-shadow: 0 0 35px var(--tron-neon-blue), inset 0 0 25px var(--tron-neon-blue); }
+        }
+
         #intro-screen h1 {
             color: var(--tron-neon-blue);
-            font-size: 3.5em;
+            font-size: 3.2em;
             text-shadow: 0 0 20px var(--tron-neon-blue);
-            margin-bottom: 40px;
-            animation: pulse-glow 2s infinite alternate; /* Subtle glow animation */
+            margin-bottom: 30px;
+            animation: pulse-text 2s infinite alternate;
         }
+
+        @keyframes pulse-text {
+            from { text-shadow: 0 0 10px var(--tron-neon-blue); }
+            to { text-shadow: 0 0 30px var(--tron-neon-blue), 0 0 40px rgba(0,255,255,0.5); }
+        }
+
         #intro-screen .input-group {
-            margin-bottom: 25px;
-            width: 100%;
-            max-width: 400px;
+            margin-bottom: 20px;
         }
+
         #intro-screen input[type="text"],
         #intro-screen input[type="number"] {
-            width: 100%;
+            width: calc(100% - 30px); /* Account for padding */
             padding: 15px;
-            background-color: var(--tron-blue-grid);
-            border: 1px solid var(--tron-neon-blue);
+            background-color: var(--tron-dark-bg);
+            border: 1px solid var(--tron-neon-orange);
             border-radius: 8px;
             color: var(--tron-text-light);
             font-size: 1.1em;
             box-sizing: border-box;
             outline: none;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            text-shadow: none;
+            text-shadow: none; /* Remove text shadow from inputs */
         }
+
         #intro-screen input[type="text"]:focus,
         #intro-screen input[type="number"]:focus {
-            border-color: var(--tron-neon-orange);
-            box-shadow: 0 0 15px rgba(255, 144, 0, 0.6);
+            border-color: var(--tron-neon-blue);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
         }
+
         #intro-screen button {
-            padding: 15px 40px;
+            padding: 15px 30px;
             background-color: var(--tron-neon-blue);
             color: var(--tron-dark-bg);
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 0 20px var(--tron-neon-blue);
+            box-shadow: 0 0 15px var(--tron-neon-blue);
         }
+
         #intro-screen button:hover {
-            background-color: #00E5E5;
-            box-shadow: 0 0 30px var(--tron-neon-blue);
+            background-color: #00E5E5; /* Slightly lighter neon */
+            box-shadow: 0 0 25px var(--tron-neon-blue);
         }
+
+        #intro-output-message { /* Renamed to avoid conflict with main content output */
+            margin-top: 30px;
+            font-size: 1.1em;
+            min-height: 1.5em; /* Reserve space to prevent layout shift */
+            color: var(--tron-neon-orange); /* Default output color */
+            text-shadow: 0 0 10px var(--tron-neon-orange);
+        }
+
+        #intro-output-message.error {
+            color: var(--tron-error-text-intro);
+            text-shadow: 0 0 10px var(--tron-error-text-intro);
+        }
+
         #intro-screen .restriction-text {
             color: var(--tron-text-dark);
             font-size: 0.9em;
             margin-top: 20px;
             text-shadow: 0 0 5px rgba(128, 255, 255, 0.3);
         }
-        #intro-feedback-message {
-            margin-top: 30px;
-            font-size: 1.1em;
-            color: var(--tron-neon-orange);
-            text-shadow: 0 0 10px var(--tron-neon-orange);
-            min-height: 1.5em; /* Reserve space */
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        @keyframes pulse-glow {
-            from { text-shadow: 0 0 10px var(--tron-neon-blue); }
-            to { text-shadow: 0 0 30px var(--tron-neon-blue), 0 0 40px rgba(0,255,255,0.5); }
-        }
 
         /* --- Main Content Area Styles --- */
         #main-learning-hub {
-            padding: 20px; /* Add padding here to avoid clash with fixed intro */
-            display: none; /* Hidden by default */
+            padding: 20px;
+            display: none; /* Initially hidden */
+            opacity: 0;
+            transition: opacity 1s ease-in;
             width: 100%;
             max-width: 1000px;
             box-sizing: border-box;
-            opacity: 0;
-            transition: opacity 1s ease-in;
         }
         #main-learning-hub.visible {
             opacity: 1;
@@ -157,6 +184,7 @@
 
         .header-section {
             width: 100%;
+            max-width: 1000px;
             margin-bottom: 20px;
             text-align: center;
         }
@@ -297,15 +325,14 @@
         }
         .try-it-out input[type="text"],
         .try-it-out input[type="number"] {
-            width: calc(50% - 20px);
             padding: 10px;
             margin-right: 10px;
             border: 1px solid var(--tron-text-dark);
             border-radius: 5px;
             background-color: var(--tron-blue-grid);
             color: var(--tron-text-light);
+            width: calc(50% - 20px);
             box-sizing: border-box;
-            margin-bottom: 10px; /* Added for mobile responsiveness */
         }
         .try-it-out button {
             padding: 10px 20px;
@@ -314,12 +341,13 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
             font-weight: 600;
             text-shadow: none; /* No text shadow on button */
             box-shadow: 0 0 10px var(--tron-neon-blue);
         }
         .try-it-out button:hover {
-            background-color: #00E5E5;
+            background-color: #00E5E5; /* Slightly lighter neon */
             box-shadow: 0 0 15px var(--tron-neon-blue);
         }
         .output-box {
@@ -371,7 +399,7 @@
             box-shadow: 0 0 15px var(--tron-neon-orange);
             border-color: var(--tron-neon-orange);
         }
-        h2.active .arrow {
+        .presentation-points h2.active .arrow {
             color: var(--tron-dark-bg);
         }
 
@@ -575,16 +603,18 @@
 <body>
     <!-- Intro Screen (Initially Visible) -->
     <div id="intro-screen">
-        <h1>Welcome, Program!</h1>
-        <div class="input-group">
-            <input type="text" id="intro-name-input" placeholder="Enter your name" aria-label="Enter your name">
+        <div class="intro-container-content">
+            <h1>Access Protocol</h1>
+            <div class="input-group">
+                <input type="text" id="user-name-input" placeholder="Identify yourself, Program" aria-label="Enter your name">
+            </div>
+            <div class="input-group">
+                <input type="number" id="user-age-input" placeholder="State your current cycle (age)" aria-label="Enter your age">
+            </div>
+            <button id="execute-button">Execute Protocol</button>
+            <p id="intro-output-message"></p>
+            <p class="restriction-text">System requires 21 cycles and above for full access.</p>
         </div>
-        <div class="input-group">
-            <input type="number" id="intro-age-input" placeholder="Enter your age (cycle)" aria-label="Enter your age (cycle)">
-        </div>
-        <button id="enter-grid-button">Enter the Grid</button>
-        <p id="intro-feedback-message"></p>
-        <p class="restriction-text">Age restriction: 21 cycles and above</p>
     </div>
 
     <!-- Main Learning Hub (Initially Hidden) -->
@@ -592,7 +622,7 @@
         <div class="header-section">
             <h1 id="main-welcome-title">My AI Native Journey: The Grid Awaits!</h1>
             <p class="explanation">
-                Greetings, User. Kevin Flynn here. Welcome to the digital frontier! Explore the core concepts of your Python script and revisit your presentation insights. When you're ready, test your knowledge with the recognition protocol below.
+                Welcome to the digital frontier! Explore the core concepts of the Python script, all within the system.
             </p>
         </div>
 
@@ -601,7 +631,7 @@
             <div class="section-container left-panel">
                 <h2>Python Concepts Explorer</h2>
                 <p class="explanation">
-                    Click on each concept to dive into its explanation and interactive examples, based on your "Tron Legacy" greeting script.
+                    Click on each concept to dive into its explanation and interactive examples, based on my "Tron Legacy" greeting script.
                 </p>
 
                 <!-- Concept 1: Functions -->
@@ -681,7 +711,7 @@ print(f"Greetings, Program! Welcome, {user_name}.")
 </code></pre>
                     <div class="try-it-out">
                         <h3>Try It Out! (Simulate Conversion)</h3>
-                        <label for="convert-input">Enter a number or flexibly-shaped text:</label>
+                        <label for="convert-input">Enter a number or text:</label>
                         <input type="text" id="convert-input" placeholder="e.g., 25 or 'hello'">
                         <button onclick="simulateConversion()">Convert to Number</button>
                         <div id="convert-output" class="output-box"></div>
@@ -784,7 +814,7 @@ Includes an age restriction check.
                         <div id="fstring-output" class="output-box"></div>
                     </div>
                 </div>
-                
+
                 <!-- Live Python Code Editor -->
                 <h2 class="accordion-header" data-target="live-code-editor">
                     9. Live Code Editor: Run Your Python! <span class="arrow">&gt;</span>
@@ -858,7 +888,7 @@ welcome_user()
                     <button class="accordion-header" data-target="presentation-point1">
                         What I Directed AI to Build <span class="arrow">&gt;</span>
                     </button>
-                    <div class="accordion-content" id="presentation-point1">
+                    <div class="content" id="presentation-point1">
                         <p>My initial goal was simple: to create a 'Tron Legacy' style greeting program. But with the AI's help, I evolved it into a multi-layered access system that first <strong>validates user eligibility based on 'cycles' (age)</strong>, and then delivers a uniquely <strong>personalized welcome</strong>, even recognizing a special 'Creator' user!</p>
                     </div>
                 </div>
@@ -867,7 +897,7 @@ welcome_user()
                     <button class="accordion-header" data-target="presentation-point2">
                         One Cool AI Interaction <span class="arrow">&gt;</span>
                     </button>
-                    <div class="accordion-content" id="presentation-point2">
+                    <div class="content" id="presentation-point2">
                         <p>One of the coolest features we built with AI was the smart, multi-stage personalization. Beyond just a name, the AI helped me implement an age-gate, only proceeding with the greeting if the user met the 'cycle' requirements, and then adapting the greeting specifically for 'Gary' – making the AI feel much more aware and responsive!</p>
                     </div>
                 </div>
@@ -876,7 +906,7 @@ welcome_user()
                     <button class="accordion-header" data-target="presentation-point3">
                         One Challenge I Overcame with AI <span class="arrow">&gt;</span>
                     </button>
-                    <div class="accordion-content" id="presentation-point3">
+                    <div class="content" id="presentation-point3">
                         <p>A key challenge I tackled with the AI's guidance was understanding and fixing an <strong>IndentationError</strong>. In Python, even a single misplaced space can stop your code cold. The AI helped me understand this strict 'grammar rule' of Python, showing me how crucial precise spacing is for controlling the program's flow, turning a frustrating bug into a clear learning moment.</p>
                     </div>
                 </div>
@@ -887,7 +917,7 @@ welcome_user()
         <div class="section-container full-width-panel lesson-plan">
             <h2>Your Python Basics Journey: A Comprehensive Lesson Plan</h2>
             <p class="explanation">
-                Welcome, User, to the wonderful world of Python programming! This lesson plan is designed to guide you through the fundamental concepts of Python, from setting up your environment to building a small project. Each unit builds upon the previous one, ensuring a smooth and enjoyable learning experience on the Grid.
+                Welcome to the wonderful world of Python programming! This lesson plan is designed to guide you through the fundamental concepts of Python, from setting up your environment to building a small project. Each unit builds upon the previous one, ensuring a smooth and enjoyable learning experience.
             </p>
 
             <!-- Unit 1: Getting Started with Python -->
@@ -1193,41 +1223,46 @@ welcome_user()
         <div id="quiz-feedback" class="quiz-feedback"></div>
     </div>
 
-    <script type="text/python" id="python-script-to-run">
-        # This is the Python script that will be executed by Brython
-        # when the user enters the grid.
-        # It needs to interact with the HTML elements directly.
-
+    <!-- Python Script for Brython -->
+    <script type="text/python">
         from browser import document, html, window
 
-        def welcome_user_brython():
+        def welcome_user_brython(event):
+            # Get references to HTML elements
+            user_name_input = document["user-name-input"]
+            user_age_input = document["user-age-input"]
+            output_message = document["intro-output-message"] # Use intro-specific ID
+
             required_age = 21
-            intro_feedback_message = document["intro-feedback-message"]
-            intro_screen = document["intro-screen"]
-            main_learning_hub = document["main-learning-hub"]
-            main_welcome_title = document["main-welcome-title"]
 
-            user_age_str = document["intro-age-input"].value
-            user_name = document["intro-name-input"].value
+            # Get values from input fields
+            user_name = user_name_input.value.strip()
+            user_age_str = user_age_input.value.strip()
 
-            # Clear previous feedback
-            intro_feedback_message.text = ""
+            # Clear previous messages and reset styling
+            output_message.text = ""
+            output_message.classList.remove("error")
+            output_message.style.color = "var(--tron-neon-orange)"
+            output_message.style.textShadow = "0 0 10px var(--tron-neon-orange)"
 
+
+            # --- Age Restriction Check ---
             try:
                 user_age = int(user_age_str)
             except ValueError:
-                intro_feedback_message.text = "Invalid input for cycle. Access Denied, Malformed Data."
-                intro_feedback_message.style.color = "var(--tron-neon-orange)"
-                return
+                output_message.text = "Invalid input for cycle. Access Denied, Malformed Data."
+                output_message.classList.add("error")
+                return # Stop the function if input isn't a number
 
             if user_age < required_age:
-                intro_feedback_message.text = "Access Denied, Not Enough Cycles."
-                intro_feedback_message.style.color = "var(--tron-neon-orange)"
-                return
+                output_message.text = "Access Denied, Not Enough Cycles."
+                output_message.classList.add("error")
+                return # Stop the function if they are too young
             else:
-                # Access Granted, proceed with name check and transition
-                intro_feedback_message.text = "Access Granted, Cycles Consumed."
-                intro_feedback_message.style.color = "var(--tron-neon-blue)"
+                # Age is sufficient, proceed with name check
+                output_message.text = "Access Granted, Cycles Consumed."
+                output_message.style.color = "var(--tron-neon-blue)"
+                output_message.style.textShadow = "0 0 10px var(--tron-neon-blue)"
                 
                 # Delay the transition slightly for feedback visibility
                 window.setTimeout(lambda: show_main_content(user_name), 1000)
@@ -1249,17 +1284,19 @@ welcome_user()
                 main_welcome_title.text = f"Greetings, Program! Welcome, {user_name}!"
             
             # Update the explanation text just below the main title as well
-            document.querySelector('.header-section .explanation').text = f"Greetings, {user_name if user_name.strip() != '' else 'User'}. Kevin Flynn here. Welcome to the digital frontier! Explore the core concepts of your Python script and revisit your presentation insights. When you're ready, test your knowledge with the recognition protocol below."
+            # Use querySelector to get the first element matching the class
+            explanation_paragraph = document.querySelector('.header-section .explanation')
+            if explanation_paragraph:
+                explanation_paragraph.text = f"Greetings, {user_name if user_name.strip() != '' else 'User'}. Kevin Flynn here. Welcome to the digital frontier! Explore the core concepts of your Python script and revisit your presentation insights. When you're ready, test your knowledge with the recognition protocol below."
 
 
-        # Attach the Brython function to the HTML button
-        document["enter-grid-button"].bind("click", welcome_user_brython)
-
+        # Bind the Python function to the button's click event
+        document["execute-button"].bind("click", welcome_user_brython)
     </script>
 
 
     <script>
-        // Main JavaScript for Accordions and Simulations (not Brython)
+        // Main JavaScript for Accordions, Simulations, Quiz, and Gemini Integration
         document.addEventListener('DOMContentLoaded', () => {
             // Function to handle accordion headers
             const setupAccordion = (headersSelector, contentClass, closeOthers = true) => {
@@ -1307,10 +1344,10 @@ welcome_user()
             setupAccordion('.section-container.left-panel .accordion-header', '.content', true);
 
             // Setup for Presentation Points Accordion (Right Panel)
-            setupAccordion('.section-container.right-panel .accordion-header', '.accordion-content', true);
+            setupAccordion('.section-container.right-panel .accordion-header', '.content', true); /* Changed to .content for consistent class */
 
             // Setup for Lesson Plan Accordion (Full Width Panel)
-            setupAccordion('.section-container.full-width-panel .accordion-header', '.content', true);
+            setupAccordion('.section-container.full-width-panel.lesson-plan .accordion-header', '.content', true);
 
 
             // --- Simulation Functions (adapted for new output box style) ---
@@ -1326,7 +1363,7 @@ welcome_user()
                     outputDiv.style.backgroundColor = 'var(--tron-error-output-bg)';
                     outputDiv.style.borderColor = 'var(--tron-error-output-border)';
                     outputDiv.style.color = 'var(--tron-error-output-text)';
-                    outputDiv.style.boxShadow = '0 0 8px rgba(255, 144, 0, 0.4)';
+                    outputDiv.style.boxShadow = '0 0 8px rgba(213, 0, 0, 0.4)';
                 } else {
                     outputDiv.style.backgroundColor = 'var(--tron-success-output-bg)';
                     outputDiv.style.borderColor = 'var(--tron-success-output-border)';
@@ -1397,7 +1434,7 @@ welcome_user()
 
                 const userAge = parseInt(ageInput.value);
                 const userName = nameInput.value;
-                const requiredAge = 21; // From your script - Corrected: Used requiredAge as defined
+                const requiredAge = 21; /* Corrected: Used requiredAge as defined */
 
                 let outputMessage = '';
                 let isErrorMessage = false;
@@ -1406,7 +1443,7 @@ welcome_user()
                     outputMessage = '<p>Please enter a valid age and a name to simulate!</p>';
                     isErrorMessage = true;
                 } else {
-                    if (userAge < requiredAge) { // Corrected: Used requiredAge
+                    if (userAge < requiredAge) { /* Corrected: Used requiredAge */
                         outputMessage = `
                             <p>Age (${userAge}) is less than ${requiredAge}.</p>
                             <p><code>Access Denied, Not Enough Cycles.</code></p>
@@ -1608,10 +1645,10 @@ welcome_user()
                                 <p>Flynn to User: Data corruption detected in some sectors. Keep studying the core concepts to re-optimize your understanding!</p>
                                 <p>Score: ${score} / ${totalQuestions} (${percentage}%)</p>
                             </p>`;
-                            isCorrectOverall = true; // Use incorrect styling for scores below 70%
+                            isCorrectOverall = true; /* Use incorrect styling for scores below 70% */
                         }
                         showOutput(quizFeedback, feedbackMessage, !isCorrectOverall);
-                        if(percentage === 100) { // Specific styling for perfect score
+                        if(percentage === 100) { /* Specific styling for perfect score */
                             quizFeedback.style.backgroundColor = '#0056b3'; /* Deeper blue for perfect */
                             quizFeedback.style.borderColor = '#00FFFF';
                             quizFeedback.style.color = '#E0FFFF';
@@ -1687,3 +1724,14 @@ welcome_user()
                 const prompt = `Explain the programming concept "${conceptToExplain}" in a simple, easy-to-understand manner for a non-coder, relating it to the Tron Grid if possible.`;
                 const explanation = await callGeminiAPI(prompt);
                 showOutput(geminiOutput, `<p><strong>Explanation of "${conceptToExplain}":</strong></p>${explanation}`);
+            };
+        });
+
+        // Initialize Brython after the entire document has loaded
+        window.addEventListener('load', () => {
+            // This ensures brython is loaded AFTER all HTML elements it interacts with are in the DOM.
+            brython(1);
+        });
+    </script>
+</body>
+</html>
